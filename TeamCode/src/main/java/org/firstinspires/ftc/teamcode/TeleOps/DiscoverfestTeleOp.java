@@ -54,7 +54,6 @@ public class DiscoverfestTeleOp extends OpMode {
         telemetry.addData("Robot X", robotPose.x());
         telemetry.addData("Robot Y", robotPose.y());
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
-        // Math.toDegrees() is a built-in java method
 
         intake.setIntakeSpeed(gamepad1.right_trigger - gamepad1.left_trigger);
 

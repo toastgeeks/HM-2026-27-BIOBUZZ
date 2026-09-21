@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
-import com.qualcomm.robotcore.robocol.TelemetryMessage;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import static com.pedropathing.api.Paths.*;
 import com.pedropathing.paths.Path;
@@ -21,7 +20,6 @@ import com.pedropathing.ivy.Command;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 import static com.pedropathing.ivy.groups.Groups.sequential;
-import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.commands.Commands.*;
 
 
