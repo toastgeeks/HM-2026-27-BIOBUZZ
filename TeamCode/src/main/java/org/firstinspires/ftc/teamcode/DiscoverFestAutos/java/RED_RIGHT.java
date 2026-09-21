@@ -9,7 +9,6 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.robocol.TelemetryMessage;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import static com.pedropathing.api.Paths.*;
 import com.pedropathing.paths.Path;
@@ -17,10 +16,13 @@ import com.pedropathing.ivy.Scheduler;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
 import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
 import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
+import com.pedropathing.ivy.Command;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
-import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.groups.Groups.parallel;
+import static com.pedropathing.ivy.commands.Commands.*;
 
 
 @Autonomous
@@ -61,7 +63,54 @@ public class RED_RIGHT extends OpMode {
         return curve(farIntake,goParkControl,goPark).linear(farIntake,goPark);
     }
 
+    private Command autoRoutine() {
+        return sequential(
 
+                instant(() -> Shooter_Transfer.shooterState = 1),
+
+                waitMs(1000),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(1000),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                instant(() -> Shooter_Transfer.shooterState = 0),
+
+                instant(() -> IntakeCode.setIntakeSpeed(1.0)),
+
+                follow(follower, goIntake()),
+
+                follow(follower, closeIntake()),
+
+                instant(() -> IntakeCode.setIntakeSpeed(0.0)),
+
+                instant(() -> Shooter_Transfer.shooterState = 1),
+
+                follow(follower, goShootFar()),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(1000),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                instant(() -> Shooter_Transfer.shooterState = 0),
+
+                waitMs(1000),
+
+                follow(follower, backUpForIntake()),
+
+                instant(() -> IntakeCode.setIntakeSpeed(1.0)),
+
+                follow(follower, farIntake()),
+
+                instant(() -> IntakeCode.setIntakeSpeed(0.0)),
+
+                follow(follower, goPark())
+        );
+    }
 
 
     @Override
@@ -76,37 +125,7 @@ public class RED_RIGHT extends OpMode {
 
     @Override
     public void start() {
-        ElapsedTime timer = new ElapsedTime();
-
-        Shooter_Transfer.shooterState = 1;
-
-        timer.reset();
-        while (timer.seconds() < 1.0) {}
-
-        Shooter_Transfer.servoState = 1;
-
-        timer.reset();
-        while (timer.seconds() < 1.0) {}
-
-        Shooter_Transfer.servoState = 0;
-        IntakeCode.setIntakeSpeed(1.0);
-        schedule(follow(follower, goIntake()));
-        schedule(follow(follower, closeIntake()));
-        IntakeCode.setIntakeSpeed(0.0);
-        Shooter_Transfer.shooterState = 1;
-        schedule(follow(follower, goShootFar()));
-        Shooter_Transfer.servoState = 1;
-
-        timer.reset();
-        while (timer.seconds() < 1.0) {}
-
-        Shooter_Transfer.servoState = 0;
-        IntakeCode.setIntakeSpeed(1.0);
-        schedule(follow(follower, backUpForIntake()));
-        schedule(follow(follower, farIntake()));
-        schedule(follow(follower, goPark()));
-        IntakeCode.setIntakeSpeed(0.0);
-        //we're done!!!
+        schedule(autoRoutine());
     }
 
 
@@ -115,18 +134,12 @@ public class RED_RIGHT extends OpMode {
         follower.update();
         Scheduler.execute();
 
-
-
-
-        TelemetryMessage telemetryData = null;
-        telemetryData.addData("X", follower.pose().x());
-        telemetryData.addData("Y", follower.pose().y());
-        telemetryData.addData("Heading", Math.toDegrees(follower.pose().heading()));
+        telemetry.addData("X", follower.pose().x());
+        telemetry.addData("Y", follower.pose().y());
+        telemetry.addData("Heading", Math.toDegrees(follower.pose().heading()));
         telemetry.addData("Follower Mode", follower.mode());
         telemetry.update();
     }
-    // in your autonomous
-
 
     @Override
     public void stop() {
