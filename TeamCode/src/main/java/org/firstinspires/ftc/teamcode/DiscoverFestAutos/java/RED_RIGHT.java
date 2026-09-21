@@ -9,11 +9,14 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.robocol.TelemetryMessage;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import static com.pedropathing.api.Paths.*;
 import com.pedropathing.paths.Path;
 import com.pedropathing.ivy.Scheduler;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
+import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
+import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
@@ -66,15 +69,43 @@ public class RED_RIGHT extends OpMode {
         Scheduler.reset();
         follower = Constants.create(hardwareMap);
         follower.setPose(startPose);
+        IntakeCode intake = new IntakeCode();
+        Shooter_Transfer shooter = new Shooter_Transfer();
+        Shooter_Transfer servo = new Shooter_Transfer();
     }
+
     @Override
     public void start() {
+        ElapsedTime timer = new ElapsedTime();
+
+        Shooter_Transfer.shooterState = 1;
+
+        timer.reset();
+        while (timer.seconds() < 1.0) {}
+
+        Shooter_Transfer.servoState = 1;
+
+        timer.reset();
+        while (timer.seconds() < 1.0) {}
+
+        Shooter_Transfer.servoState = 0;
+        IntakeCode.setIntakeSpeed(1.0);
         schedule(follow(follower, goIntake()));
         schedule(follow(follower, closeIntake()));
+        IntakeCode.setIntakeSpeed(0.0);
+        Shooter_Transfer.shooterState = 1;
         schedule(follow(follower, goShootFar()));
+        Shooter_Transfer.servoState = 1;
+
+        timer.reset();
+        while (timer.seconds() < 1.0) {}
+
+        Shooter_Transfer.servoState = 0;
+        IntakeCode.setIntakeSpeed(1.0);
         schedule(follow(follower, backUpForIntake()));
         schedule(follow(follower, farIntake()));
         schedule(follow(follower, goPark()));
+        IntakeCode.setIntakeSpeed(0.0);
         //we're done!!!
     }
 

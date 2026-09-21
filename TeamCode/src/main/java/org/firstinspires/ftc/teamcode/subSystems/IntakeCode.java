@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class IntakeCode {
 
-    public DcMotor intake;
+    public static DcMotor intake;
 
     private int MIN_TICKS = 0;
     private static int MAX_TICKS = 4000;
@@ -38,7 +38,7 @@ public class IntakeCode {
     // INTAKE VARIABLES
     // =========================
 
-    private volatile double requestedIntakePower = 0.0;
+    private static volatile double requestedIntakePower = 0.0;
 
     private volatile boolean intakeMonitorRunning = false;
     private Thread intakeMonitorThread;
@@ -57,28 +57,13 @@ public class IntakeCode {
         // Start the intake anti-jam monitor
         startIntakeMonitor();
 
-
-        // =========================
-        // LIFT
-        // =========================
-
-        liftMotor = hwMap.get(DcMotorEx.class, "lift");
-
-        liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftMotor.setTargetPosition(0);
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        targetLiftTicks = 0;
     }
 
     // =========================
     // INTAKE CONTROL
     // =========================
 
-    public void setIntakeSpeed(double intakeSpeed) {
+    public static void setIntakeSpeed(double intakeSpeed) {
 
         requestedIntakePower = Range.clip(intakeSpeed, -1.0, 1.0);
 
@@ -178,107 +163,5 @@ public class IntakeCode {
         }
 
         requestedIntakePower = 0;
-    }
-
-    // =========================
-    // LIFT CONTROL
-    // =========================
-
-    public void setTargetLiftTicks(int ticks) {
-
-        targetLiftTicks = Range.clip(ticks, MIN_TICKS, MAX_TICKS);
-
-        liftMotor.setTargetPosition(targetLiftTicks);
-
-        liftMotor.setPower(RUN_TO_POSITION_POWER);
-
-        if (liftMotor.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
-            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-
-        liftMotor.setPower(RUN_TO_POSITION_POWER);
-    }
-
-    public void setTargetPercentage(int percent) {
-
-        int ticks = (int) Range.scale(
-                percent,
-                0,
-                100,
-                MIN_TICKS,
-                MAX_TICKS
-        );
-
-        setTargetLiftTicks(ticks);
-    }
-
-    public boolean isBusy() {
-        return liftMotor.isBusy();
-    }
-
-    public void setNUDGE_POWER(double requestedPower) {
-
-        if (liftMotor.getMode() != DcMotor.RunMode.RUN_WITHOUT_ENCODER) {
-            liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
-
-        double clippedPower = Range.clip(
-                requestedPower,
-                -NUDGE_POWER,
-                NUDGE_POWER
-        );
-
-        int curPos = liftMotor.getCurrentPosition();
-
-        if (curPos <= MIN_TICKS && clippedPower < 0) {
-            clippedPower = 0;
-        }
-        else if (curPos >= MAX_TICKS && clippedPower > 0) {
-            clippedPower = 0;
-        }
-
-        liftMotor.setPower(clippedPower);
-    }
-
-    public void controlLift(double control, Telemetry telemetry) {
-
-        if ((control < 0.05) && (control > -0.05)) {
-
-            // No trigger: HOLD position
-            liftMotor.setPower(0.6);
-            liftMotor.setTargetPosition(
-                    liftMotor.getCurrentPosition()
-            );
-
-        } else {
-
-            if (control < -0.05) {
-
-                // Lowering: allow gravity to help
-                liftMotor.setZeroPowerBehavior(
-                        DcMotor.ZeroPowerBehavior.FLOAT
-                );
-            }
-
-            int currentPosition = liftMotor.getCurrentPosition();
-
-            int target = currentPosition + (int) (control * 25);
-
-            target = Range.clip(
-                    target,
-                    MIN_TICKS,
-                    MAX_TICKS
-            );
-
-            liftMotor.setTargetPosition(target);
-        }
-
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.setPower(RUN_TO_POSITION_POWER);
-
-        telemetry.addData(
-                "Lift Ticks",
-                liftMotor.getCurrentPosition()
-        );
     }
 }
