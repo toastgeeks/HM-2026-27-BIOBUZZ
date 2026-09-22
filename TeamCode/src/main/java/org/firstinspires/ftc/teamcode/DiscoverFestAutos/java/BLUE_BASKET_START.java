@@ -1,32 +1,31 @@
 package org.firstinspires.ftc.teamcode.DiscoverFestAutos.java;
 
-
-
-
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.pedropathing.follower.Follower;
 import com.pedropathing.api.PoseFactory;
-import com.pedropathing.math.Pose;
-import org.firstinspires.ftc.teamcode.pedro.Constants;
-import static com.pedropathing.api.Paths.*;
-import com.pedropathing.paths.Path;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
 import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
-import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
-import com.pedropathing.ivy.Command;
 
+import static com.pedropathing.api.Paths.curve;
+import static com.pedropathing.api.Paths.line;
 import static com.pedropathing.ivy.Scheduler.schedule;
-import static com.pedropathing.ivy.pedro.PedroCommands.follow;
+import static com.pedropathing.ivy.commands.Commands.instant;
+import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
-import static com.pedropathing.ivy.commands.Commands.*;
+import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 
 @Autonomous
-public class RED_RIGHT extends OpMode {
+public class BLUE_BASKET_START extends OpMode {
     private Follower follower;
-    private final PoseFactory p = PoseFactory.degrees();
+    private final PoseFactory p = PoseFactory.degrees().mirrorX(70.75);
     private final Pose startPose = p.of(55.5, 8.4, 90);
     private final Pose goToGarden = p.of(19.6, 7.9, 180);
     private final Pose goToGardenControl = p.of(47.92198581560284, 22.442080378250598, 180);

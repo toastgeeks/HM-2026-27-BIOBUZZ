@@ -21,10 +21,12 @@ public class DiscoverfestTeleOp extends OpMode {
 
     Shooter_Transfer shooter_transfer = new Shooter_Transfer();
 
+
     @Override
     public void init() {
         follower = Constants.create(hardwareMap);
     }
+
 
     @Override
     public void start(){
