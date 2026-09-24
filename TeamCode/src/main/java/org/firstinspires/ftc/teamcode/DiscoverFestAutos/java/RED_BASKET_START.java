@@ -61,47 +61,47 @@ public class RED_BASKET_START extends OpMode {
     private Command autoRoutine() {
         return sequential(
 
-                instant(() -> Shooter_Transfer.shooterState = 1),
+           //     instant(() -> Shooter_Transfer.shooterState = 1),
+//
+           //     waitMs(1000),
 
-                waitMs(1000),
-
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(1000),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                instant(() -> Shooter_Transfer.shooterState = 0),
-
-                instant(() -> IntakeCode.setIntakeSpeed(1.0)),
+           //     instant(() -> Shooter_Transfer.servoState = 1),
+//
+           //     waitMs(1000),
+//
+           //     instant(() -> Shooter_Transfer.servoState = 0),
+//
+           //     instant(() -> Shooter_Transfer.shooterState = 0),
+//
+           //     instant(() -> IntakeCode.setIntakeSpeed(1.0)),
 
                 follow(follower, goIntake()),
 
                 follow(follower, closeIntake()),
 
-                instant(() -> IntakeCode.setIntakeSpeed(0.0)),
-
-                instant(() -> Shooter_Transfer.shooterState = 1),
+            //    instant(() -> IntakeCode.setIntakeSpeed(0.0)),
+//
+            //    instant(() -> Shooter_Transfer.shooterState = 1),
 
                 follow(follower, goShootFar()),
 
-                instant(() -> Shooter_Transfer.servoState = 1),
+           //     instant(() -> Shooter_Transfer.servoState = 1),
 
-                waitMs(1000),
+            //    waitMs(1000),
 
-                instant(() -> Shooter_Transfer.servoState = 0),
+             //   instant(() -> Shooter_Transfer.servoState = 0),
+//
+             //   instant(() -> Shooter_Transfer.shooterState = 0),
 
-                instant(() -> Shooter_Transfer.shooterState = 0),
-
-                waitMs(1000),
+              //  waitMs(1000),
 
                 follow(follower, backUpForIntake()),
 
-                instant(() -> IntakeCode.setIntakeSpeed(1.0)),
+             //   instant(() -> IntakeCode.setIntakeSpeed(1.0)),
 
                 follow(follower, farIntake()),
 
-                instant(() -> IntakeCode.setIntakeSpeed(0.0)),
+              //  instant(() -> IntakeCode.setIntakeSpeed(0.0)),
 
                 follow(follower, goPark())
         );

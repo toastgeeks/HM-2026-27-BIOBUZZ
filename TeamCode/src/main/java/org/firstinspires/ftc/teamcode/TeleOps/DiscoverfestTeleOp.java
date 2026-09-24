@@ -17,9 +17,9 @@ public class DiscoverfestTeleOp extends OpMode {
 
     private Follower follower;
 
-    IntakeCode intake = new IntakeCode();
+   // IntakeCode intake = new IntakeCode();
 
-    Shooter_Transfer shooter_transfer = new Shooter_Transfer();
+   // Shooter_Transfer shooter_transfer = new Shooter_Transfer();
 
 
     @Override
@@ -59,19 +59,19 @@ public class DiscoverfestTeleOp extends OpMode {
 
         //intake.setIntakeSpeed(gamepad1.right_trigger - gamepad1.left_trigger);
 
-        if (gamepad2.right_trigger > 0.1){
-            shooter_transfer.shooterState = 1;
-        }
-        else {
-            shooter_transfer.shooterState = 0;
-        }
-
-        if (gamepad2.a){
-            shooter_transfer.servoState = 1;
-        }
-        else {
-            shooter_transfer.servoState = 0;
-        }
+     //   if (gamepad2.right_trigger > 0.1){
+     //       shooter_transfer.shooterState = 1;
+     //   }
+     //   else {
+     //       shooter_transfer.shooterState = 0;
+     //   }
+//
+     //   if (gamepad2.a){
+     //       shooter_transfer.servoState = 1;
+     //   }
+     //   else {
+     //       shooter_transfer.servoState = 0;
+     //   }
     }
 
 }
