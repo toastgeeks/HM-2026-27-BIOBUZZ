@@ -57,7 +57,7 @@ public class DiscoverfestTeleOp extends OpMode {
         telemetry.addData("Robot Y", robotPose.y());
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
 
-        intake.setIntakeSpeed(gamepad1.right_trigger - gamepad1.left_trigger);
+        //intake.setIntakeSpeed(gamepad1.right_trigger - gamepad1.left_trigger);
 
         if (gamepad2.right_trigger > 0.1){
             shooter_transfer.shooterState = 1;

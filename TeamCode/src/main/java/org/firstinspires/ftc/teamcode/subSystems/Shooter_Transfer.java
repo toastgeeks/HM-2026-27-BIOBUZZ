@@ -7,13 +7,17 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class Shooter_Transfer {
 
-    public DcMotor shooter;
+    public DcMotor shooter1;
+    public DcMotor shooter2;
     private Servo servo;
 
     public void init(HardwareMap hwMap) {
-        shooter = hwMap.get(DcMotor.class, "shooter");
-        shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter1 = hwMap.get(DcMotor.class, "shooter1");
+        shooter2 = hwMap.get(DcMotor.class, "shooter2");
+        shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
         servo = hwMap.get(Servo.class, "servo");
     }
 
@@ -26,19 +30,21 @@ public class Shooter_Transfer {
 
 
     public void loop() {
-        Shooter_Transfer servo = new Shooter_Transfer();
         if (Shooter_Transfer.servoState == 1) {
-            servo.setServoPosition(90);
+            setServoPosition(90);
         } else {
-            servo.setServoPosition(0);
+            setServoPosition(0);
         }
 
         if (Shooter_Transfer.shooterState == 1) {
-            shooter.setPower(1);
+            shooter1.setPower(1);
+            shooter2.setPower(1);
         }
         else {
-            shooter.setPower(0);
+            shooter1.setPower(0);
+            shooter2.setPower(0);
         }
+
     }
 
 }
