@@ -31,14 +31,14 @@ public class Shooter_Transfer {
 
     public void loop() {
         if (Shooter_Transfer.servoState == 1) {
-            setServoPosition(90);
-        } else {
             setServoPosition(0);
+        } else {
+            setServoPosition(0.25);
         }
 
         if (Shooter_Transfer.shooterState == 1) {
-            shooter1.setPower(1);
-            shooter2.setPower(1);
+            shooter1.setPower(0.6);
+            shooter2.setPower(0.6);
         }
         else {
             shooter1.setPower(0);
