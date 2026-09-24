@@ -17,14 +17,17 @@ public class DiscoverfestTeleOp extends OpMode {
 
     private Follower follower;
 
-   // IntakeCode intake = new IntakeCode();
+    IntakeCode intake = new IntakeCode();
 
-   // Shooter_Transfer shooter_transfer = new Shooter_Transfer();
+    Shooter_Transfer shooter_transfer = new Shooter_Transfer();
 
 
     @Override
     public void init() {
         follower = Constants.create(hardwareMap);
+
+        intake.init(hardwareMap);
+        shooter_transfer.init(hardwareMap);
     }
 
 
@@ -38,11 +41,12 @@ public class DiscoverfestTeleOp extends OpMode {
     public void loop() {
         DrivePowers powers = ManualDrive.fieldCentric(
                 -gamepad1.left_stick_y,
-                gamepad1.left_stick_x,
-                gamepad1.right_stick_x,
+                -gamepad1.left_stick_x,
+                -gamepad1.right_stick_x,
                 follower.pose().heading()
         );
         follower.manual(powers);
+        shooter_transfer.loop();
 
         // relocalise button
         if (gamepad1.start) {
@@ -57,21 +61,21 @@ public class DiscoverfestTeleOp extends OpMode {
         telemetry.addData("Robot Y", robotPose.y());
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
 
-        //intake.setIntakeSpeed(gamepad1.right_trigger - gamepad1.left_trigger);
+        intake.setIntakeSpeed(gamepad1.right_trigger - gamepad1.left_trigger);
 
-     //   if (gamepad2.right_trigger > 0.1){
-     //       shooter_transfer.shooterState = 1;
-     //   }
-     //   else {
-     //       shooter_transfer.shooterState = 0;
-     //   }
-//
-     //   if (gamepad2.a){
-     //       shooter_transfer.servoState = 1;
-     //   }
-     //   else {
-     //       shooter_transfer.servoState = 0;
-     //   }
+        if (gamepad2.right_trigger > 0.1){
+            shooter_transfer.shooterState = 1;
+        }
+        else {
+            shooter_transfer.shooterState = 0;
+        }
+
+        if (gamepad2.a){
+            shooter_transfer.servoState = 1;
+        }
+        else {
+            shooter_transfer.servoState = 0;
+        }
     }
 
 }
