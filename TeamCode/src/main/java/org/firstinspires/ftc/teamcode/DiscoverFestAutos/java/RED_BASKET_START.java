@@ -22,6 +22,9 @@ import static com.pedropathing.ivy.commands.Commands.*;
 
 @Autonomous
 public class RED_BASKET_START extends OpMode {
+
+    private IntakeCode intake;
+    private Shooter_Transfer shooter;
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
     private final Pose startPose = p.of(55.5, 8.4, 90);
@@ -59,49 +62,101 @@ public class RED_BASKET_START extends OpMode {
     }
 
     private Command autoRoutine() {
+        double time_between_shots = 250;
+        double flywheel_spinup_time = 800;
         return sequential(
 
-           //     instant(() -> Shooter_Transfer.shooterState = 1),
-//
-           //     waitMs(1000),
+                instant(() -> Shooter_Transfer.shooterState = 1),
 
-           //     instant(() -> Shooter_Transfer.servoState = 1),
-//
-           //     waitMs(1000),
-//
-           //     instant(() -> Shooter_Transfer.servoState = 0),
-//
-           //     instant(() -> Shooter_Transfer.shooterState = 0),
-//
-           //     instant(() -> IntakeCode.setIntakeSpeed(1.0)),
+                waitMs(3000),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                instant(() -> Shooter_Transfer.shooterState = 0),
+
+                instant(() -> intake.setIntakeSpeed(1.0)),
 
                 follow(follower, goIntake()),
 
                 follow(follower, closeIntake()),
 
-            //    instant(() -> IntakeCode.setIntakeSpeed(0.0)),
-//
-            //    instant(() -> Shooter_Transfer.shooterState = 1),
+                instant(() -> intake.setIntakeSpeed(0.0)),
+
+                instant(() -> Shooter_Transfer.shooterState = 1),
 
                 follow(follower, goShootFar()),
 
-           //     instant(() -> Shooter_Transfer.servoState = 1),
+                instant(() -> Shooter_Transfer.servoState = 1),
 
-            //    waitMs(1000),
+                waitMs(time_between_shots),
 
-             //   instant(() -> Shooter_Transfer.servoState = 0),
-//
-             //   instant(() -> Shooter_Transfer.shooterState = 0),
+                instant(() -> Shooter_Transfer.servoState = 0),
 
-              //  waitMs(1000),
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                instant(() -> Shooter_Transfer.shooterState = 0),
 
                 follow(follower, backUpForIntake()),
 
-             //   instant(() -> IntakeCode.setIntakeSpeed(1.0)),
+                instant(() -> intake.setIntakeSpeed(1.0)),
 
                 follow(follower, farIntake()),
 
-              //  instant(() -> IntakeCode.setIntakeSpeed(0.0)),
+                instant(() -> intake.setIntakeSpeed(0.0)),
 
                 follow(follower, goPark())
         );
@@ -111,11 +166,18 @@ public class RED_BASKET_START extends OpMode {
     @Override
     public void init() {
         Scheduler.reset();
+
         follower = Constants.create(hardwareMap);
         follower.setPose(startPose);
-        IntakeCode intake = new IntakeCode();
-        Shooter_Transfer shooter = new Shooter_Transfer();
-        Shooter_Transfer servo = new Shooter_Transfer();
+
+        intake = new IntakeCode();
+        intake.init(hardwareMap);
+
+        shooter = new Shooter_Transfer();
+        shooter.init(hardwareMap);
+
+        Shooter_Transfer.servoState = 0;
+        shooter.loop();
     }
 
     @Override
@@ -126,6 +188,7 @@ public class RED_BASKET_START extends OpMode {
 
     @Override
     public void loop() {
+        shooter.loop();
         follower.update();
         Scheduler.execute();
 

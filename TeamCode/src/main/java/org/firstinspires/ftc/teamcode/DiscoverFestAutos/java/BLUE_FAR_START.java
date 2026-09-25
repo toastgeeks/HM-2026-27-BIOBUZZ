@@ -24,6 +24,8 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 @Autonomous
 public class BLUE_FAR_START extends OpMode {
+    private IntakeCode intake;
+    private Shooter_Transfer shooter;
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees().mirrorX(70.75);
     private final Pose startPose = p.of(59.67966903073285, 133.77777777777783, 270);
@@ -44,38 +46,90 @@ public class BLUE_FAR_START extends OpMode {
     }
 
     private Command autoRoutine() {
+        double time_between_shots = 250;
+        double flywheel_spinup_time = 800;
         return sequential(
-                waitMs(13000),
+                waitMs(12000),
 
                 instant(() -> Shooter_Transfer.shooterState = 1),
 
-                waitMs(2000),
-
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(1000),
+                waitMs(3000),
 
                 instant(() -> Shooter_Transfer.servoState = 0),
 
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
                 instant(() -> Shooter_Transfer.shooterState = 0),
 
-                instant(() -> IntakeCode.setIntakeSpeed(1.0)),
+                instant(() -> intake.setIntakeSpeed(1.0)),
 
                 follow(follower, goIntakeUnderBasket()),
 
                 follow(follower, goBackToShoot()),
 
-                instant(() -> IntakeCode.setIntakeSpeed(0.0)),
+                instant(() -> intake.setIntakeSpeed(0.0)),
 
                 instant(() -> Shooter_Transfer.shooterState = 1),
 
                 waitMs(2000),
 
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
                 instant(() -> Shooter_Transfer.servoState = 1),
 
-                waitMs(1000),
+                waitMs(time_between_shots),
 
                 instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time),
+
+                instant(() -> Shooter_Transfer.servoState = 1),
 
                 instant(() -> Shooter_Transfer.shooterState = 0),
 
@@ -87,11 +141,19 @@ public class BLUE_FAR_START extends OpMode {
     @Override
     public void init() {
         Scheduler.reset();
+
         follower = Constants.create(hardwareMap);
         follower.setPose(startPose);
-        IntakeCode intake = new IntakeCode();
-        Shooter_Transfer shooter = new Shooter_Transfer();
-        Shooter_Transfer servo = new Shooter_Transfer();
+
+        intake = new IntakeCode();
+        intake.init(hardwareMap);
+
+        shooter = new Shooter_Transfer();
+        shooter.init(hardwareMap);
+
+        Shooter_Transfer.servoState = 0;
+        Shooter_Transfer.shooterState = 0;
+        shooter.loop();
     }
 
     @Override
@@ -102,6 +164,7 @@ public class BLUE_FAR_START extends OpMode {
 
     @Override
     public void loop() {
+        shooter.loop();
         follower.update();
         Scheduler.execute();
 
