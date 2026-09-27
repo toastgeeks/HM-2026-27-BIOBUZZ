@@ -67,7 +67,7 @@ public class BLUE_BASKET_START extends OpMode {
         double flywheel_spinup_time = 800;
         return sequential(
 
-                instant(() -> Shooter_Transfer.shooterState = 1),
+                instant(() -> Shooter_Transfer.shooterState = 2),
 
                 waitMs(3000),
 
@@ -115,7 +115,7 @@ public class BLUE_BASKET_START extends OpMode {
 
                 instant(() -> intake.setIntakeSpeed(0.0)),
 
-                instant(() -> Shooter_Transfer.shooterState = 1),
+                instant(() -> Shooter_Transfer.shooterState = 2),
 
                 follow(follower, goShootFar()),
 

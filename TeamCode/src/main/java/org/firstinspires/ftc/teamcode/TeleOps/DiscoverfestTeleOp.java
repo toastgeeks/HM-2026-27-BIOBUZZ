@@ -21,6 +21,8 @@ public class DiscoverfestTeleOp extends OpMode {
 
     Shooter_Transfer shooter_transfer = new Shooter_Transfer();
 
+    int shooterSpeed = 3;
+
 
     @Override
     public void init() {
@@ -28,6 +30,7 @@ public class DiscoverfestTeleOp extends OpMode {
 
         intake.init(hardwareMap);
         shooter_transfer.init(hardwareMap);
+
     }
 
 
@@ -64,7 +67,7 @@ public class DiscoverfestTeleOp extends OpMode {
         intake.setIntakeSpeed(gamepad1.right_trigger - gamepad1.left_trigger);
 
         if (gamepad2.right_trigger > 0.1){
-            shooter_transfer.shooterState = 1;
+            shooter_transfer.shooterState = shooterSpeed;
         }
         else {
             shooter_transfer.shooterState = 0;
@@ -75,6 +78,27 @@ public class DiscoverfestTeleOp extends OpMode {
         }
         else {
             shooter_transfer.servoState = 0;
+        }
+
+        if (gamepad2.dpadUpWasPressed()) {
+            if (shooterSpeed < 5) shooterSpeed += 1;
+        }
+        if (gamepad2.dpadDownWasPressed()) {
+            if (shooterSpeed > 0) shooterSpeed -= 1;
+        }
+
+        if (shooterSpeed == 0) {
+            telemetry.addLine("Shooter Speed = 0%");
+        } else if (shooterSpeed == 1) {
+            telemetry.addLine("Shooter Speed = 55%");
+        } else if (shooterSpeed == 2) {
+            telemetry.addLine("Shooter Speed = 60%");
+        } else if (shooterSpeed == 3) {
+            telemetry.addLine("Shooter Speed = 65%");
+        } else if (shooterSpeed == 4) {
+            telemetry.addLine("Shooter Speed = 70%");
+        } else if (shooterSpeed == 5) {
+            telemetry.addLine("Shooter Speed = 75%");
         }
     }
 

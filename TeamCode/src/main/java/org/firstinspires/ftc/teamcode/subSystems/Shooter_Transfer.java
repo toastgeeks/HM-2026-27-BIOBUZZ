@@ -37,12 +37,29 @@ public class Shooter_Transfer {
         }
 
         if (Shooter_Transfer.shooterState == 1) {
+            shooter1.setPower(0.55);
+            shooter2.setPower(-0.55);
+        }
+        if (Shooter_Transfer.shooterState == 0){
+            shooter1.setPower(0);
+            shooter2.setPower(0);
+        }
+        if (Shooter_Transfer.shooterState == 2){
+            shooter1.setPower(0.6);
+            shooter2.setPower(-0.6);
+        }
+        if (Shooter_Transfer.shooterState == 3){
             shooter1.setPower(0.65);
             shooter2.setPower(-0.65);
         }
-        else {
-            shooter1.setPower(0);
-            shooter2.setPower(0);
+        if (Shooter_Transfer.shooterState == 4){
+            shooter1.setPower(0.7);
+            shooter2.setPower(-0.7);
+        }
+
+        if (Shooter_Transfer.shooterState == 5){
+            shooter1.setPower(0.75);
+            shooter2.setPower(-0.75);
         }
 
     }

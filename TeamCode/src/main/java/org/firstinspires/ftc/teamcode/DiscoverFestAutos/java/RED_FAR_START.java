@@ -49,11 +49,11 @@ public class RED_FAR_START extends OpMode {
         double time_between_shots = 250;
         double flywheel_spinup_time = 800;
         return sequential(
-                waitMs(12000),
+                waitMs(11000),
 
-                instant(() -> Shooter_Transfer.shooterState = 1),
+                instant(() -> Shooter_Transfer.shooterState = 2),
 
-                waitMs(3000),
+                waitMs(4000),
 
                 instant(() -> Shooter_Transfer.servoState = 0),
 
@@ -97,7 +97,7 @@ public class RED_FAR_START extends OpMode {
 
                 instant(() -> intake.setIntakeSpeed(0.0)),
 
-                instant(() -> Shooter_Transfer.shooterState = 1),
+                instant(() -> Shooter_Transfer.shooterState = 2),
 
                 waitMs(2000),
 
