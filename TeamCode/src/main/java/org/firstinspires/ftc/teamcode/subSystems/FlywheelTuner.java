@@ -9,7 +9,8 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 @Disabled
 public class FlywheelTuner extends OpMode{
-    public DcMotorEx flyWheelMotor;
+    public DcMotorEx flyWheelMotor1;
+    public DcMotorEx flyWheelMotor2;
 
     public double highVelocity = 1500;
     public double lowVelocity = 900;
@@ -25,14 +26,12 @@ public class FlywheelTuner extends OpMode{
 
     @Override
     public void init() {
-        //flyWheelMotor1 = hardwareMap.get(DcMotorEx.class, "shooter1");
-        //flyWheelMotor2 = hardwareMap.get(DcMotorEx.class, "shooter2");
-        //flyWheelMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //flyWheelMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
-        //flyWheelMotor1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
-        //flyWheelMotor2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
-        //flyWheelMotor2.set
+        flyWheelMotor1 = hardwareMap.get(DcMotorEx.class, "shooter1");
+        flyWheelMotor2 = hardwareMap.get(DcMotorEx.class, "shooter2");
+        flyWheelMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        flyWheelMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+        flyWheelMotor1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
         telemetry.addLine("Init complete");
     }
 
@@ -68,12 +67,13 @@ public class FlywheelTuner extends OpMode{
 
         //set new PIDF coefficients
         PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
-        flyWheelMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+        flyWheelMotor1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
 
         //set velocity
-        flyWheelMotor.setVelocity((curTargetVelocity));
+        flyWheelMotor1.setVelocity((curTargetVelocity));
+        flyWheelMotor2.setVelocity((curTargetVelocity));
 
-        double curVelocity = flyWheelMotor.getVelocity();
+        double curVelocity = flyWheelMotor1.getVelocity();
         double error = curTargetVelocity - curVelocity;
 
         telemetry.addData("Target Velocity", curTargetVelocity);
