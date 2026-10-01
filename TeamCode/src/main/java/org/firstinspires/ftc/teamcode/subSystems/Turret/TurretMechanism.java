@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subSystems.Turret;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -8,7 +9,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 public class TurretMechanism {
-    private DcMotorEx turret;
+    private CRServo turret;
 
     private double kP = 0.0001;
     private double kD = 0.0000;
@@ -21,8 +22,8 @@ public class TurretMechanism {
     private final ElapsedTime timer = new ElapsedTime();
 
     public void init(HardwareMap hwMap) {
-        turret = hwMap.get(DcMotorEx.class, "turret");
-        turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turret = hwMap.get(CRServo.class, "turret");
+        turret.setPower(0);
     }
 
     public void setkP(double newKP) {
@@ -43,23 +44,24 @@ public class TurretMechanism {
 
     public void resetTimer(){
         timer.reset();
+        lastError = 0;
     }
 
-    public void update(AprilTagDetection curID) {
+    public void update(double tx) {
         double deltaTime = timer.seconds();
         timer.reset();
 
-        if (curID == null) {
+        //no tag detected
+        if (Double.isNaN(tx)) {
             turret.setPower(0);
             lastError = 0;
             return;
-
         }
 
         // ------ Start PD controller -------
 
-        double error = goalX - curID.ftcPose.bearing;
-        double pTerm = error = kP;
+        double error = goalX - tx;
+        double pTerm = error * kP;
 
         double dTerm = 0;
         if (deltaTime > 0) {
