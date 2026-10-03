@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
 import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
 import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
 
-public abstract class AutoAimTeleOp extends OpMode {
+public abstract class AutoAimCode extends OpMode {
 
     private Follower follower;
 
@@ -32,7 +32,7 @@ public abstract class AutoAimTeleOp extends OpMode {
     private final double LOWER_HIVE_Y = 55;
     private final double UPPER_HIVE_Y = 84;
 
-    public AutoAimTeleOp(double hiveX) {
+    public AutoAimCode(double hiveX) {
         this.hiveX = hiveX;
     }
 
