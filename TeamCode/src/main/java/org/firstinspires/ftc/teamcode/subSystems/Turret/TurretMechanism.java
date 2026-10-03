@@ -11,24 +11,24 @@ public class TurretMechanism {
 
     // ---------------- PD TUNING ----------------
 
-    private double kP = 0.01;
-    private double kD = 0.0;
+    private double kP = 0.01910;
+    private double kD = 0.000001;
 
-    // We want TX to be 0 degrees
+    // Tx should be 0
     private double goalX = 0.0;
 
     private double lastError = 0.0;
 
-    // How close to center before stopping
-    private double angleTolerance = 0.5;
+    // how much wiggle room
+    private double angleTolerance = 0.3;
 
-    // Maximum CR servo power
-    private double MAX_POWER = 0.6;
+    // max servo power
+    private double MAX_POWER = 0.9;
 
     private final ElapsedTime timer = new ElapsedTime();
 
 
-    // ---------------- INITIALIZATION ----------------
+    // ---------------- INIT ----------------
 
     public void init(HardwareMap hwMap) {
 

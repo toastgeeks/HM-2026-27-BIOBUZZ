@@ -6,6 +6,8 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 
 import java.util.List;
 
@@ -13,6 +15,7 @@ import java.util.List;
 public class TuningOpMode extends OpMode {
 
     private Limelight3A limelight;
+    private TelemetryManager panelsTelemetry;
 
     private final TurretMechanism turret =
             new TurretMechanism();
@@ -33,6 +36,7 @@ public class TuningOpMode extends OpMode {
 
     @Override
     public void init() {
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         limelight = hardwareMap.get(
                 Limelight3A.class,
@@ -44,15 +48,15 @@ public class TuningOpMode extends OpMode {
         // AprilTag pipeline
         limelight.pipelineSwitch(0);
 
-        telemetry.addLine(
+        panelsTelemetry.addLine(
                 "Turret Tuning Mode"
         );
 
-        telemetry.addLine(
+        panelsTelemetry.addLine(
                 "Target: AprilTag 20"
         );
 
-        telemetry.update();
+        panelsTelemetry.update();
     }
 
 
@@ -68,9 +72,7 @@ public class TuningOpMode extends OpMode {
     @Override
     public void loop() {
 
-        // -----------------------------------------
         // GET LIMELIGHT RESULT
-        // -----------------------------------------
 
         LLResult result =
                 limelight.getLatestResult();
@@ -79,10 +81,7 @@ public class TuningOpMode extends OpMode {
 
         FiducialResult target = null;
 
-
-        // -----------------------------------------
-        // FIND TAG 20
-        // -----------------------------------------
+        // FIND TAG 24
 
         if (result != null && result.isValid()) {
 
@@ -91,7 +90,7 @@ public class TuningOpMode extends OpMode {
 
             for (FiducialResult tag : fiducials) {
 
-                if (tag.getFiducialId() == 20) {
+                if (tag.getFiducialId() == 24) {
 
                     target = tag;
 
@@ -104,19 +103,15 @@ public class TuningOpMode extends OpMode {
         }
 
 
-        // -----------------------------------------
         // AIM
-        // -----------------------------------------
 
         turret.updateAuto(tx);
 
 
-        // -----------------------------------------
         // P/D TUNING
-        // -----------------------------------------
 
         // B = change step size
-        if (gamepad2.bWasPressed()) {
+        if (gamepad1.bWasPressed()) {
 
             stepIndex =
                     (stepIndex + 1)
@@ -125,7 +120,7 @@ public class TuningOpMode extends OpMode {
 
 
         // D-pad left/right = P
-        if (gamepad2.dpadLeftWasPressed()) {
+        if (gamepad1.dpadLeftWasPressed()) {
 
             turret.setkP(
                     turret.getkP()
@@ -133,7 +128,7 @@ public class TuningOpMode extends OpMode {
             );
         }
 
-        if (gamepad2.dpadRightWasPressed()) {
+        if (gamepad1.dpadRightWasPressed()) {
 
             turret.setkP(
                     turret.getkP()
@@ -143,7 +138,7 @@ public class TuningOpMode extends OpMode {
 
 
         // D-pad up/down = D
-        if (gamepad2.dpadUpWasPressed()) {
+        if (gamepad1.dpadUpWasPressed()) {
 
             turret.setkD(
                     turret.getkD()
@@ -151,7 +146,7 @@ public class TuningOpMode extends OpMode {
             );
         }
 
-        if (gamepad2.dpadDownWasPressed()) {
+        if (gamepad1.dpadDownWasPressed()) {
 
             turret.setkD(
                     turret.getkD()
@@ -160,59 +155,52 @@ public class TuningOpMode extends OpMode {
         }
 
 
-        // -----------------------------------------
         // TELEMETRY
-        // -----------------------------------------
 
         if (target != null) {
 
-            telemetry.addData(
+            panelsTelemetry.addData(
                     "Tag",
                     target.getFiducialId()
             );
 
-            telemetry.addData(
+            panelsTelemetry.addData(
                     "TX",
-                    "%.2f°",
                     tx
             );
 
-            telemetry.addData(
+            panelsTelemetry.addData(
                     "TY",
-                    "%.2f°",
                     target.getTargetYDegrees()
             );
 
         } else {
 
-            telemetry.addLine(
-                    "Tag 20 not detected"
+            panelsTelemetry.addLine(
+                    "Tag 24 not detected"
             );
         }
 
-        telemetry.addLine(
+        panelsTelemetry.addLine(
                 "---------------------------"
         );
 
-        telemetry.addData(
+        panelsTelemetry.addData(
                 "P",
-                "%.5f",
                 turret.getkP()
         );
 
-        telemetry.addData(
+        panelsTelemetry.addData(
                 "D",
-                "%.5f",
                 turret.getkD()
         );
 
-        telemetry.addData(
+        panelsTelemetry.addData(
                 "Step Size",
-                "%.5f",
                 stepSizes[stepIndex]
         );
 
-        telemetry.update();
+        panelsTelemetry.update();
     }
 
 
