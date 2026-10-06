@@ -55,7 +55,7 @@ public class TurretMechanism {
     // ---------------- D TUNING ----------------
 
     public void setkD(double newKD) {
-        kD = newKD;
+        if (newKD < 1.0 && newKD > -1.0) { kD = newKD; }
     }
 
     public double getkD() {
@@ -92,52 +92,37 @@ public class TurretMechanism {
         double pTerm = error * kP;
 
         // Derivative term
-        double dTerm = 0;
+        double dTerm = 0.0;
 
-        if (deltaTime > 0) {
-            dTerm =
-                    ((error - lastError) / deltaTime)
-                            * kD;
+        if (deltaTime > 0.0) {
+            dTerm = ((error - lastError) / deltaTime) * kD;
         }
 
-        double power;
+        double power = 0.0;
 
         // Close enough to target
         if (Math.abs(error) < angleTolerance) {
-
-            power = 0;
-
+            power = 0.0;
         } else {
-
-            power = Range.clip(
-                    pTerm + dTerm,
-                    -MAX_POWER,
-                    MAX_POWER
-            );
+            double adjust = pTerm + dTerm;
+            if (adjust >= 0.0 && adjust < 0.1) {
+                adjust = 0.1;
+            } else if (adjust < 0.0 && adjust > -0.1) {
+                adjust = -0.1;
+            }
+            power = Range.clip(adjust, -MAX_POWER, MAX_POWER );
         }
 
         turret.setPower(power);
-
         lastError = error;
     }
 
-
     // ---------------- MANUAL MODE ----------------
-
     public void manual(double input) {
-
-        turret.setPower(
-                Range.clip(
-                        input,
-                        -MAX_POWER,
-                        MAX_POWER
-                )
-        );
+        turret.setPower(Range.clip(input, -MAX_POWER, MAX_POWER));
     }
 
-
     // ---------------- STOP ----------------
-
     public void stop() {
         turret.setPower(0);
     }
