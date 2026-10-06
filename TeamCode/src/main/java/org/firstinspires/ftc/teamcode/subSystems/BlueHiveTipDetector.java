@@ -9,32 +9,28 @@ import java.util.List;
 
 public class BlueHiveTipDetector {
 
-    // BioBuzz BLUE CELL AprilTags
-    // 38-41 = side opposite audience
+    private Limelight3A limelight;
+
+    // BioBuzz BLUE hive/CELL AprilTags
+    // 38-41 = opposite audience side
     // 42-45 = audience side
     private static final int[] BLUE_HIVE_TAGS = {
             38, 39, 40, 41,
             42, 43, 44, 45
     };
 
-    private Limelight3A limelight;
-
     public void init(HardwareMap hardwareMap) {
-
         limelight = hardwareMap.get(
                 Limelight3A.class,
                 "limelight"
         );
 
-        // Set this to your AprilTag pipeline number
+        // CHANGE THIS if your AprilTag pipeline isn't pipeline 0
         limelight.pipelineSwitch(0);
 
         limelight.start();
     }
 
-    /**
-     * Returns true if any BLUE hive AprilTag is currently visible.
-     */
     public boolean areHiveTagsVisible() {
 
         LLResult result = limelight.getLatestResult();
@@ -51,7 +47,6 @@ public class BlueHiveTipDetector {
             int id = fiducial.getFiducialId();
 
             for (int hiveTag : BLUE_HIVE_TAGS) {
-
                 if (id == hiveTag) {
                     return true;
                 }

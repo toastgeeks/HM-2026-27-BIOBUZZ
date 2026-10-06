@@ -1,31 +1,34 @@
 package org.firstinspires.ftc.teamcode.DiscoverFestAutos.java;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.pedropathing.follower.Follower;
 import com.pedropathing.api.PoseFactory;
-import com.pedropathing.math.Pose;
-import org.firstinspires.ftc.teamcode.pedro.Constants;
-import static com.pedropathing.api.Paths.*;
-import com.pedropathing.paths.Path;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.subSystems.RedHiveTipDetector;
+import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
 import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
-import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
-import com.pedropathing.ivy.Command;
 
+
+import static com.pedropathing.api.Paths.curve;
+import static com.pedropathing.api.Paths.line;
 import static com.pedropathing.ivy.Scheduler.schedule;
-import static com.pedropathing.ivy.pedro.PedroCommands.follow;
-import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.commands.Commands.*;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 
 @Autonomous
 public class RED_BASKET_START extends OpMode {
-
     private IntakeCode intake;
     private Shooter_Transfer shooter;
     private Follower follower;
+    private RedHiveTipDetector hiveDetector;
     private final PoseFactory p = PoseFactory.degrees();
     private final Pose startPose = p.of(55.5, 8.4, 90);
     private final Pose goToGarden = p.of(19.6, 7.9, 180);
@@ -48,6 +51,7 @@ public class RED_BASKET_START extends OpMode {
     private Path closeIntake(){
         return line(goToGarden,intakeFromGarden).linear(goToGarden,intakeFromGarden);
     }
+    private Path goShootCloseAgain(){return curve(intakeFromGarden,startPose, goToGarden).linear(intakeFromGarden,startPose);}
     private Path goShootFar() {
         return curve(intakeFromGarden,goShootOtherSideControl1,goShootOtherSideControl2,goShootOtherSide).linear(intakeFromGarden, goShootOtherSide);
     }
@@ -61,6 +65,63 @@ public class RED_BASKET_START extends OpMode {
         return curve(farIntake,goParkControl,goPark).linear(farIntake,goPark);
     }
 
+    private Command shootOne() {
+        double time_between_shots = 250;
+        double flywheel_spinup_time = 800;
+
+        return sequential(
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                waitMs(flywheel_spinup_time)
+        );
+    }
+
+    private Command shootHive() {
+
+        return sequential(
+
+                // First shot
+                shootOne(),
+
+                // Give the hive time to tip
+                waitMs(3000),
+
+                // Check the AprilTags
+                conditional(
+
+                        () -> hiveDetector.areHiveTagsVisible(),
+
+                        // Tags still visible → hive didn't tip
+                        sequential(
+
+                                shootOne(),
+
+                                // Give it time to tip
+                                waitMs(3000),
+
+                                // Check again
+                                conditional(
+
+                                        () -> hiveDetector.areHiveTagsVisible(),
+
+                                        // Still visible → final attempt
+                                        shootOne(),
+
+                                        // Tags disappeared → hive tipped
+                                        instant(() -> {})
+                                )
+                        ),
+
+                        // Tags disappeared → hive tipped
+                        instant(() -> {})
+                )
+        );
+    }
+
     private Command autoRoutine() {
         double time_between_shots = 250;
         double flywheel_spinup_time = 800;
@@ -70,41 +131,10 @@ public class RED_BASKET_START extends OpMode {
 
                 waitMs(3000),
 
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(time_between_shots),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                waitMs(flywheel_spinup_time),
-
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(time_between_shots),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                waitMs(flywheel_spinup_time),
-
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(time_between_shots),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                waitMs(flywheel_spinup_time),
-
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(time_between_shots),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                waitMs(flywheel_spinup_time),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                instant(() -> Shooter_Transfer.shooterState = 0),
+                shootOne(),
+                shootOne(),
+                shootOne(),
+                shootOne(),
 
                 instant(() -> intake.setIntakeSpeed(1.0)),
 
@@ -114,47 +144,15 @@ public class RED_BASKET_START extends OpMode {
 
                 instant(() -> intake.setIntakeSpeed(0.0)),
 
-                instant(() -> Shooter_Transfer.shooterState = 2),
+                follow(follower, goShootCloseAgain()),
 
-                follow(follower, goShootFar()),
-
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(time_between_shots),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                waitMs(flywheel_spinup_time),
-
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(time_between_shots),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                waitMs(flywheel_spinup_time),
-
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(time_between_shots),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                waitMs(flywheel_spinup_time),
-
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(time_between_shots),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                instant(() -> Shooter_Transfer.shooterState = 0),
-
-                follow(follower, backUpForIntake()),
+                shootHive(),
 
                 instant(() -> intake.setIntakeSpeed(1.0)),
 
-                follow(follower, farIntake()),
+                follow(follower, goShootFar()),
+
+                shootHive(),
 
                 instant(() -> intake.setIntakeSpeed(0.0)),
 
@@ -176,8 +174,14 @@ public class RED_BASKET_START extends OpMode {
         shooter = new Shooter_Transfer();
         shooter.init(hardwareMap);
 
+        hiveDetector = new RedHiveTipDetector();
+        hiveDetector.init(hardwareMap);
+
         Shooter_Transfer.servoState = 0;
         shooter.loop();
+
+        hiveDetector = new RedHiveTipDetector();
+        hiveDetector.init(hardwareMap);
     }
 
     @Override

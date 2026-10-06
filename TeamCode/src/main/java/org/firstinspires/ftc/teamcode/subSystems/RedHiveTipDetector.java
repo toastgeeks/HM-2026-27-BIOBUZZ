@@ -11,8 +11,8 @@ public class RedHiveTipDetector {
 
     private Limelight3A limelight;
 
-    // BioBuzz RED CELL AprilTags
-    // 30-33 = side opposite audience
+    // BioBuzz RED hive/CELL AprilTags
+    // 30-33 = opposite audience side
     // 34-37 = audience side
     private static final int[] RED_HIVE_TAGS = {
             30, 31, 32, 33,
@@ -20,20 +20,16 @@ public class RedHiveTipDetector {
     };
 
     public void init(HardwareMap hardwareMap) {
-
         limelight = hardwareMap.get(
                 Limelight3A.class,
                 "limelight"
         );
 
-        // Set this to your AprilTag pipeline number
+        // CHANGE THIS if your AprilTag pipeline isn't pipeline 0
         limelight.pipelineSwitch(0);
 
         limelight.start();
     }
-
-
-     // Returns true if any RED hive AprilTag is currently visible.
 
     public boolean areHiveTagsVisible() {
 
@@ -51,7 +47,6 @@ public class RedHiveTipDetector {
             int id = fiducial.getFiducialId();
 
             for (int hiveTag : RED_HIVE_TAGS) {
-
                 if (id == hiveTag) {
                     return true;
                 }
