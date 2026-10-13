@@ -65,7 +65,7 @@ public class BLUE_BASKET_START extends OpMode {
         return curve(farIntake,goParkControl,goPark).linear(farIntake,goPark);
     }
 
-    private Command shootOne() {
+    private Command shootOne(boolean waitForNextShot) {
         double time_between_shots = 250;
         double flywheel_spinup_time = 800;
 
@@ -76,7 +76,11 @@ public class BLUE_BASKET_START extends OpMode {
 
                 instant(() -> Shooter_Transfer.servoState = 0),
 
-                waitMs(flywheel_spinup_time)
+                conditional(
+                        () -> waitForNextShot,
+                        waitMs(flywheel_spinup_time),
+                        instant(() -> {})
+                )
         );
     }
 
@@ -84,39 +88,43 @@ public class BLUE_BASKET_START extends OpMode {
 
         return sequential(
 
-                // First shot
-                shootOne(),
-
-                // Give the hive time to tip
-                waitMs(3000),
-
-                // Check the AprilTags
+                // only shoot if the hive tags are visible
                 conditional(
-
                         () -> hiveDetector.areHiveTagsVisible(),
 
-                        // Tags STILL visible → hive didn't tip
+                        // tags visible: take the first shot
                         sequential(
+                                shootOne(true),
 
-                                shootOne(),
-
-                                // Give it time to tip
+                                // give the hive time to tip
                                 waitMs(3000),
 
-                                // Check again
+                                // check again before the second shot
                                 conditional(
-
                                         () -> hiveDetector.areHiveTagsVisible(),
 
-                                        // Still visible → final attempt
-                                        shootOne(),
+                                        sequential(
+                                                shootOne(true),
+                                                waitMs(3000),
 
-                                        // Tags disappeared → hive tipped
+                                                // check before the final shot
+                                                conditional(
+                                                        () -> hiveDetector.areHiveTagsVisible(),
+
+                                                        // still visible: final attempt
+                                                        shootOne(false),
+
+                                                        // tags disappeared: don't shoot
+                                                        instant(() -> {})
+                                                )
+                                        ),
+
+                                        // tags disappeared: don't shoot
                                         instant(() -> {})
                                 )
                         ),
 
-                        // Tags disappeared → hive tipped
+                        // tags not visible initially: don't shoot at all
                         instant(() -> {})
                 )
         );
@@ -131,30 +139,30 @@ public class BLUE_BASKET_START extends OpMode {
 
                 waitMs(3000),
 
-                shootOne(),
-                shootOne(),
-                shootOne(),
-                shootOne(),
+                shootOne(true),
+                shootOne(true),
+                shootOne(true),
+                shootOne(false),
 
-                instant(() -> intake.setIntakeSpeed(1.0)),
+                instant(() -> intake.run(1.0)),
 
                 follow(follower, goIntake()),
 
                 follow(follower, closeIntake()),
 
-                instant(() -> intake.setIntakeSpeed(0.0)),
+                instant(() -> intake.stop()),
 
                 follow(follower, goShootCloseAgain()),
 
                 shootHive(),
 
-                instant(() -> intake.setIntakeSpeed(1.0)),
+                instant(() -> intake.run(1.0)),
 
                 follow(follower, goShootFar()),
 
                 shootHive(),
 
-                instant(() -> intake.setIntakeSpeed(0.0)),
+                instant(() -> intake.stop()),
 
                 follow(follower, goPark())
         );
@@ -168,8 +176,7 @@ public class BLUE_BASKET_START extends OpMode {
         follower = Constants.create(hardwareMap);
         follower.setPose(startPose);
 
-        intake = new IntakeCode();
-        intake.init(hardwareMap);
+        intake = new IntakeCode(hardwareMap);
 
         shooter = new Shooter_Transfer();
         shooter.init(hardwareMap);
