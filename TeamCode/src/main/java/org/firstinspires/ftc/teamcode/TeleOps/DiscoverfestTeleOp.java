@@ -17,7 +17,7 @@ public class DiscoverfestTeleOp extends OpMode {
 
     private Follower follower;
 
-    IntakeCode intake = new IntakeCode();
+    private IntakeCode intake;
 
     Shooter_Transfer shooter_transfer = new Shooter_Transfer();
 
@@ -28,8 +28,7 @@ public class DiscoverfestTeleOp extends OpMode {
     public void init() {
         follower = Constants.create(hardwareMap);
 
-        intake.init(hardwareMap);
-        shooter_transfer.init(hardwareMap);
+        intake = new IntakeCode(hardwareMap);
 
     }
 
@@ -64,7 +63,7 @@ public class DiscoverfestTeleOp extends OpMode {
         telemetry.addData("Robot Y", robotPose.y());
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
 
-        intake.setIntakeSpeed(gamepad1.right_trigger - gamepad1.left_trigger);
+        intake.run(gamepad1.right_trigger - gamepad1.left_trigger);
 
         if (gamepad2.right_trigger > 0.1){
             shooter_transfer.shooterState = shooterSpeed;
