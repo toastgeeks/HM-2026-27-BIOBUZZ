@@ -11,6 +11,9 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
 import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
 import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
+import org.firstinspires.ftc.teamcode.subSystems.FlowerIntake;
+
+import static com.pedropathing.ivy.commands.Commands.instant;
 
 @TeleOp(name = "Discoverfest TeleOp")
 public class DiscoverfestTeleOp extends OpMode {
@@ -19,9 +22,13 @@ public class DiscoverfestTeleOp extends OpMode {
 
     private IntakeCode intake;
 
+    private FlowerIntake arm;
+
     Shooter_Transfer shooter_transfer = new Shooter_Transfer();
 
     int shooterSpeed = 3;
+
+    int armState = 2;
 
 
     @Override
@@ -29,6 +36,8 @@ public class DiscoverfestTeleOp extends OpMode {
         follower = Constants.create(hardwareMap);
 
         intake = new IntakeCode(hardwareMap);
+
+        arm = new FlowerIntake(hardwareMap);
 
     }
 
@@ -64,6 +73,22 @@ public class DiscoverfestTeleOp extends OpMode {
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
 
         intake.run(gamepad1.right_trigger - gamepad1.left_trigger);
+
+        if (armState == 2){
+            instant(() -> arm.lowerArm());
+        }
+        else if(armState == 1) {
+            instant(() -> arm.raiseArm());
+        }
+
+        if (gamepad1.aWasPressed()){
+            if(armState == 1){
+                armState = 2;
+            }
+            else {
+                armState = 1;
+            }
+        }
 
         if (gamepad2.right_trigger > 0.1){
             shooter_transfer.shooterState = shooterSpeed;
