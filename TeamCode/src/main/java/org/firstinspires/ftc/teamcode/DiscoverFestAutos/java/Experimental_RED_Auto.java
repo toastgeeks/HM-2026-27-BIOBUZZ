@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
 import org.firstinspires.ftc.teamcode.subSystems.RedHiveTipDetector;
 import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
+import org.firstinspires.ftc.teamcode.subSystems.FlowerIntake;
 
 import static com.pedropathing.api.Paths.curve;
 import static com.pedropathing.api.Paths.line;
@@ -27,6 +28,7 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 @Autonomous
 public class Experimental_RED_Auto extends OpMode {
     private IntakeCode intake;
+    private FlowerIntake arm;
     private Shooter_Transfer shooter;
     private Follower follower;
     private RedHiveTipDetector hiveDetector;
@@ -183,6 +185,7 @@ public class Experimental_RED_Auto extends OpMode {
         double time_between_shots = 250;
         double flywheel_spinup_time = 800;
         return sequential(
+                instant(() -> arm.raiseArm()),
 
                 instant(() -> Shooter_Transfer.shooterState = 2),
 
@@ -207,6 +210,8 @@ public class Experimental_RED_Auto extends OpMode {
 
                 goShootFarAndShootFour(),
 
+                instant(() -> arm.lowerArm()),
+
                 instant(() -> intake.run(1.0)),
 
                 follow(follower, intakeFromFlower()),
@@ -216,6 +221,8 @@ public class Experimental_RED_Auto extends OpMode {
                 instant(() -> intake.stop()),
 
                 follow(follower, farShoot()),
+
+                instant(() -> arm.raiseArm()),
 
                 shootHive(),
 
@@ -233,7 +240,7 @@ public class Experimental_RED_Auto extends OpMode {
         follower = Constants.create(hardwareMap);
         follower.setPose(startPose);
         intake = new IntakeCode(hardwareMap);
-
+        arm = new FlowerIntake(hardwareMap);
         shooter = new Shooter_Transfer();
         shooter.init(hardwareMap);
 
@@ -245,6 +252,8 @@ public class Experimental_RED_Auto extends OpMode {
 
         hiveDetector = new RedHiveTipDetector();
         hiveDetector.init(hardwareMap);
+
+        instant(() -> arm.raiseArm());
     }
 
     @Override
