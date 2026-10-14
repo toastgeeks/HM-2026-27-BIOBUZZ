@@ -261,7 +261,6 @@ public class Experimental_RED_Auto extends OpMode {
         schedule(autoRoutine());
     }
 
-
     @Override
     public void loop() {
         shooter.loop();

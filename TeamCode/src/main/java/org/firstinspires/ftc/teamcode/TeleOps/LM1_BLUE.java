@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.TeleOps;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,7 +14,9 @@ import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
 import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
 import org.firstinspires.ftc.teamcode.subSystems.FlowerIntake;
 
-import static com.pedropathing.ivy.commands.Commands.instant;
+import static com.pedropathing.ivy.commands.Commands.*;
+import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.groups.Groups.sequential;
 
 @TeleOp(name = "Blue Teleop")
 public class LM1_BLUE extends OpMode {
@@ -35,6 +38,34 @@ public class LM1_BLUE extends OpMode {
     private static final double HIVE_X = 83.0;
     private static final double LOWER_HIVE_Y = 55.0;
     private static final double UPPER_HIVE_Y = 84.0;
+
+    private Command shootOne(boolean waitForNextShot) {
+        double time_between_shots = 250;
+        double flywheel_spinup_time = 800;
+
+        return sequential(
+                instant(() -> Shooter_Transfer.servoState = 1),
+
+                waitMs(time_between_shots),
+
+                instant(() -> Shooter_Transfer.servoState = 0),
+
+                conditional(
+                        () -> waitForNextShot,
+                        waitMs(flywheel_spinup_time),
+                        instant(() -> {})
+                )
+        );
+    }
+
+    private Command shootFour() {
+        return sequential(
+                shootOne(true),
+                shootOne(true),
+                shootOne(true),
+                shootOne(false)
+        );
+    }
 
     @Override
     public void init() {
@@ -156,10 +187,11 @@ public class LM1_BLUE extends OpMode {
         }
 
         if (gamepad2.a){
-            shooter_transfer.servoState = 1;
+            shootFour();
         }
-        else {
-            shooter_transfer.servoState = 0;
+
+        if (gamepad2.b){
+            shootOne(false);
         }
 
         if (gamepad2.dpadUpWasPressed()) {
