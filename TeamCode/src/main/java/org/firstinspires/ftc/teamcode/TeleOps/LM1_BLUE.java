@@ -9,10 +9,8 @@ import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.ManualDrive;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
-import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
-import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
-import org.firstinspires.ftc.teamcode.subSystems.FlowerIntake;
+import org.firstinspires.ftc.teamcode.subSystems.*;
+import org.firstinspires.ftc.teamcode.subSystems.NEW_SHOOTER_TRANSFER;
 
 import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
@@ -25,9 +23,9 @@ public class LM1_BLUE extends OpMode {
 
     private IntakeCode intake;
 
-    private FlowerIntake arm;
+    private NEW_SHOOTER_TRANSFER newShooter;
 
-    Shooter_Transfer shooter_transfer = new Shooter_Transfer();
+    private FlowerIntake arm;
 
     int shooterSpeed = 3;
 
@@ -39,33 +37,6 @@ public class LM1_BLUE extends OpMode {
     private static final double LOWER_HIVE_Y = 55.0;
     private static final double UPPER_HIVE_Y = 84.0;
 
-    private Command shootOne(boolean waitForNextShot) {
-        double time_between_shots = 250;
-        double flywheel_spinup_time = 800;
-
-        return sequential(
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(time_between_shots),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                conditional(
-                        () -> waitForNextShot,
-                        waitMs(flywheel_spinup_time),
-                        instant(() -> {})
-                )
-        );
-    }
-
-    private Command shootFour() {
-        return sequential(
-                shootOne(true),
-                shootOne(true),
-                shootOne(true),
-                shootOne(false)
-        );
-    }
 
     @Override
     public void init() {
@@ -75,6 +46,9 @@ public class LM1_BLUE extends OpMode {
 
         arm = new FlowerIntake(hardwareMap);
 
+        newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
+
+        newShooter.stop();
     }
 
 
@@ -152,10 +126,6 @@ public class LM1_BLUE extends OpMode {
 
         follower.manual(powers);
 
-        shooter_transfer.loop();
-
-
-
         robotPose = follower.pose(); // returns a Pose object
         telemetry.addData("Robot X", robotPose.x());
         telemetry.addData("Robot Y", robotPose.y());
@@ -180,18 +150,18 @@ public class LM1_BLUE extends OpMode {
         }
 
         if (gamepad2.right_trigger > 0.1){
-            shooter_transfer.shooterState = shooterSpeed;
+            newShooter.rev();
         }
         else {
-            shooter_transfer.shooterState = 0;
+            newShooter.stop();
         }
 
         if (gamepad2.a){
-            shootFour();
+            newShooter.fire(500);
         }
 
         if (gamepad2.b){
-            shootOne(false);
+            newShooter.fire(100);
         }
 
         if (gamepad2.dpadUpWasPressed()) {

@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.subSystems.BlueHiveTipDetector;
 import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
 import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
+import org.firstinspires.ftc.teamcode.subSystems.NEW_SHOOTER_TRANSFER;
 
 
 import static com.pedropathing.api.Paths.curve;
@@ -26,7 +27,7 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 @Autonomous
 public class BLUE_BASKET_START extends OpMode {
     private IntakeCode intake;
-    private Shooter_Transfer shooter;
+    private NEW_SHOOTER_TRANSFER newShooter;
     private Follower follower;
     private BlueHiveTipDetector hiveDetector;
     private final PoseFactory p = PoseFactory.degrees();
@@ -65,25 +66,6 @@ public class BLUE_BASKET_START extends OpMode {
         return curve(farIntake,goParkControl,goPark).linear(farIntake,goPark);
     }
 
-    private Command shootOne(boolean waitForNextShot) {
-        double time_between_shots = 250;
-        double flywheel_spinup_time = 800;
-
-        return sequential(
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(time_between_shots),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                conditional(
-                        () -> waitForNextShot,
-                        waitMs(flywheel_spinup_time),
-                        instant(() -> {})
-                )
-        );
-    }
-
     private Command shootHive() {
 
         return sequential(
@@ -94,7 +76,7 @@ public class BLUE_BASKET_START extends OpMode {
 
                         // tags visible: take the first shot
                         sequential(
-                                shootOne(true),
+                                newShooter.fire(100),
 
                                 // give the hive time to tip
                                 waitMs(3000),
@@ -104,7 +86,7 @@ public class BLUE_BASKET_START extends OpMode {
                                         () -> hiveDetector.areHiveTagsVisible(),
 
                                         sequential(
-                                                shootOne(true),
+                                                newShooter.fire(100),
                                                 waitMs(3000),
 
                                                 // check before the final shot
@@ -112,7 +94,7 @@ public class BLUE_BASKET_START extends OpMode {
                                                         () -> hiveDetector.areHiveTagsVisible(),
 
                                                         // still visible: final attempt
-                                                        shootOne(false),
+                                                        newShooter.fire(100),
 
                                                         // tags disappeared: don't shoot
                                                         instant(() -> {})
@@ -139,10 +121,7 @@ public class BLUE_BASKET_START extends OpMode {
 
                 waitMs(3000),
 
-                shootOne(true),
-                shootOne(true),
-                shootOne(true),
-                shootOne(false),
+                newShooter.fire(500),
 
                 instant(() -> intake.run(1.0)),
 
@@ -177,18 +156,15 @@ public class BLUE_BASKET_START extends OpMode {
         follower.setPose(startPose);
 
         intake = new IntakeCode(hardwareMap);
-
-        shooter = new Shooter_Transfer();
-        shooter.init(hardwareMap);
+        newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
 
         hiveDetector = new BlueHiveTipDetector();
         hiveDetector.init(hardwareMap);
 
-        Shooter_Transfer.servoState = 0;
-        shooter.loop();
-
         hiveDetector = new BlueHiveTipDetector();
         hiveDetector.init(hardwareMap);
+
+        newShooter.stop();
     }
 
     @Override
@@ -199,7 +175,6 @@ public class BLUE_BASKET_START extends OpMode {
 
     @Override
     public void loop() {
-        shooter.loop();
         follower.update();
         Scheduler.execute();
 

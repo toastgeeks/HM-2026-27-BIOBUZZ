@@ -9,10 +9,7 @@ import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.subSystems.RedHiveTipDetector;
-import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
-import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
-import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
+import org.firstinspires.ftc.teamcode.subSystems.*;
 
 
 import static com.pedropathing.api.Paths.curve;
@@ -26,7 +23,7 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 @Autonomous
 public class RED_BASKET_START extends OpMode {
     private IntakeCode intake;
-    private Shooter_Transfer shooter;
+    private NEW_SHOOTER_TRANSFER newShooter;
     private Follower follower;
     private RedHiveTipDetector hiveDetector;
     private final PoseFactory p = PoseFactory.degrees();
@@ -65,25 +62,6 @@ public class RED_BASKET_START extends OpMode {
         return curve(farIntake,goParkControl,goPark).linear(farIntake,goPark);
     }
 
-    private Command shootOne(boolean waitForNextShot) {
-        double time_between_shots = 250;
-        double flywheel_spinup_time = 800;
-
-        return sequential(
-                instant(() -> Shooter_Transfer.servoState = 1),
-
-                waitMs(time_between_shots),
-
-                instant(() -> Shooter_Transfer.servoState = 0),
-
-                conditional(
-                        () -> waitForNextShot,
-                        waitMs(flywheel_spinup_time),
-                        instant(() -> {})
-                )
-        );
-    }
-
     private Command shootHive() {
 
         return sequential(
@@ -92,9 +70,9 @@ public class RED_BASKET_START extends OpMode {
                 conditional(
                         () -> hiveDetector.areHiveTagsVisible(),
 
-                        // tags visible, take the first shot
+                        // tags visible: take the first shot
                         sequential(
-                                shootOne(false),
+                                newShooter.fire(100),
 
                                 // give the hive time to tip
                                 waitMs(3000),
@@ -104,7 +82,7 @@ public class RED_BASKET_START extends OpMode {
                                         () -> hiveDetector.areHiveTagsVisible(),
 
                                         sequential(
-                                                shootOne(false),
+                                                newShooter.fire(100),
                                                 waitMs(3000),
 
                                                 // check before the final shot
@@ -112,19 +90,19 @@ public class RED_BASKET_START extends OpMode {
                                                         () -> hiveDetector.areHiveTagsVisible(),
 
                                                         // still visible: final attempt
-                                                        shootOne(false),
+                                                        newShooter.fire(100),
 
                                                         // tags disappeared: don't shoot
                                                         instant(() -> {})
                                                 )
                                         ),
 
-                                        // tags disappeared = don't shoot
+                                        // tags disappeared: don't shoot
                                         instant(() -> {})
                                 )
                         ),
 
-                        // tags not visible initially = don't shoot at all
+                        // tags not visible initially: don't shoot at all
                         instant(() -> {})
                 )
         );
@@ -139,10 +117,7 @@ public class RED_BASKET_START extends OpMode {
 
                 waitMs(3000),
 
-                shootOne(true),
-                shootOne(true),
-                shootOne(true),
-                shootOne(false),
+                newShooter.fire(500),
 
                 instant(() -> intake.run(1.0)),
 
@@ -177,17 +152,15 @@ public class RED_BASKET_START extends OpMode {
         follower.setPose(startPose);
         intake = new IntakeCode(hardwareMap);
 
-        shooter = new Shooter_Transfer();
-        shooter.init(hardwareMap);
+        newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
 
         hiveDetector = new RedHiveTipDetector();
         hiveDetector.init(hardwareMap);
 
-        Shooter_Transfer.servoState = 0;
-        shooter.loop();
-
         hiveDetector = new RedHiveTipDetector();
         hiveDetector.init(hardwareMap);
+
+        newShooter.stop();
     }
 
     @Override
@@ -198,7 +171,6 @@ public class RED_BASKET_START extends OpMode {
 
     @Override
     public void loop() {
-        shooter.loop();
         follower.update();
         Scheduler.execute();
 

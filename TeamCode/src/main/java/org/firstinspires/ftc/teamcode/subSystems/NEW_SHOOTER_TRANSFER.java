@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.subSystems;
 
-
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+//import com.qualcomm.robotcore.hardware.Servo;
 
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
@@ -20,6 +20,8 @@ public class NEW_SHOOTER_TRANSFER {
         shooter = hw.get(DcMotorEx.class, "shooter");
         shooter.setDirection(DcMotorSimple.Direction.FORWARD);
         transfer = hw.get(DcMotorEx.class, "transfer");
+        //gate = hw.get(Servo.class, "gate");
+
     }
 
     public Command rev() {
@@ -29,20 +31,23 @@ public class NEW_SHOOTER_TRANSFER {
     public Command stop() {
         return instant(() -> {
             shooter.setPower(0);
+            //gate.setPosition(90);
         }).requiring(this);
     }
 
-    public Command fire() {
+    public Command fire(double transferTime) {
         return sequential(
                 instant(() -> {
                     if (shooter.getPower() == 0) {
                         shooter.setPower(shooterSpeed);
                     }
                 }),
+                //instant(() -> gate.setPosition(0)),
                 instant(() -> transfer.setPower(1.0)),
-                waitMs(500),
+                waitMs(transferTime),
                 instant(() -> transfer.setPower(0.0)),
                 instant(() -> shooter.setPower(0.0))
+                //instant(() -> gate.setPosition(90))
         ).requiring(this);
     }
 
