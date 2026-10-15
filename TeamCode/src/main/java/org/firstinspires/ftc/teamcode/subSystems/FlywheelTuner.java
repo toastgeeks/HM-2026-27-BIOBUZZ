@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subSystems;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -25,14 +24,10 @@ public class FlywheelTuner extends OpMode{
 
     @Override
     public void init() {
-        //flyWheelMotor1 = hardwareMap.get(DcMotorEx.class, "shooter1");
-        //flyWheelMotor2 = hardwareMap.get(DcMotorEx.class, "shooter2");
-        //flyWheelMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //flyWheelMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
-        //flyWheelMotor1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
-        //flyWheelMotor2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
-        //flyWheelMotor2.set
+        flyWheelMotor = hardwareMap.get(DcMotorEx.class, "shooter");
+        flyWheelMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+        flyWheelMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
         telemetry.addLine("Init complete");
     }
 

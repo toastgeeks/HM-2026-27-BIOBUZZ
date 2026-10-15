@@ -133,13 +133,6 @@ public class LM1_BLUE extends OpMode {
 
         intake.run(gamepad1.right_trigger - gamepad1.left_trigger);
 
-        if (armState == 2){
-            instant(() -> arm.lowerArm());
-        }
-        else if(armState == 1) {
-            instant(() -> arm.raiseArm());
-        }
-
         if (gamepad1.aWasPressed()){
             if(armState == 1){
                 armState = 2;
@@ -148,6 +141,14 @@ public class LM1_BLUE extends OpMode {
                 armState = 1;
             }
         }
+
+        if (armState == 2){
+            instant(() -> arm.lowerArm());
+        }
+        else if(armState == 1) {
+            instant(() -> arm.raiseArm());
+        }
+
 
         if (gamepad2.right_trigger > 0.1){
             newShooter.rev();
@@ -163,6 +164,9 @@ public class LM1_BLUE extends OpMode {
         if (gamepad2.b){
             newShooter.fire(100);
         }
+
+
+        /*
 
         if (gamepad2.dpadUpWasPressed()) {
             if (shooterSpeed < 5) shooterSpeed += 1;
@@ -185,6 +189,7 @@ public class LM1_BLUE extends OpMode {
             telemetry.addLine("Shooter Speed = 75%");
         }
 
+        */
     }
 
 

@@ -136,12 +136,6 @@ public class LM1_RED extends OpMode {
 
         intake.run(gamepad1.right_trigger - gamepad1.left_trigger);
 
-        if (armState == 2){
-            instant(() -> arm.lowerArm());
-        }
-        else if(armState == 1) {
-            instant(() -> arm.raiseArm());
-        }
 
         if (gamepad1.aWasPressed()){
             if(armState == 1){
@@ -150,6 +144,13 @@ public class LM1_RED extends OpMode {
             else {
                 armState = 1;
             }
+        }
+
+        if (armState == 2){
+            instant(() -> arm.lowerArm());
+        }
+        else if(armState == 1) {
+            instant(() -> arm.raiseArm());
         }
 
         if (gamepad2.right_trigger > 0.1){
