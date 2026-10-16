@@ -35,8 +35,8 @@ public class Experimental_RED_Auto extends OpMode {
     private final PoseFactory p = PoseFactory.degrees();
     private final Pose startPose = p.of(32.41843971631206, 8.4, 90);
     private final Pose firstShots = p.of(36.28747044917258, 18.569976359338057, 55);
-    private final Pose goToGarden = p.of(22.787234042553198, 8.210401891252953, 180);
-    private final Pose intakeFromGarden = p.of(8.022458628841607, 7.868794326241126, 180);
+    private final Pose goToGarden = p.of(22.787234042553198, 8.210401891252953, 0);
+    private final Pose intakeFromGarden = p.of(8.022458628841607, 7.868794326241126, 0);
     private final Pose doubleSureTip = p.of(36.60579196217493, 18.397163120567363, 55);
     private final Pose doubleSureTipControl = p.of(22.6193853427896, 23.5307328605201, 0);
     private final Pose goShootOtherSide = p.of(46.5981, 120.409, 90);
@@ -51,9 +51,9 @@ public class Experimental_RED_Auto extends OpMode {
     private final Pose goShootOtherSideSegment4Start = p.of(46.5981, 120.409, -50);
     private final Pose goShootOtherSideSegment4End = p.of(46.5981, 120.409, 300);
     private final Pose goShootOtherSideSegment5Start = p.of(46.5981, 120.409, -60);
-    private final Pose goShootOtherSideSegment5End = p.of(46.5981, 120.409, 90);
-    private final Pose intakeFromFlower = p.of(46.92198581560283, 130.15602836879435, 90);
-    private final Pose farShoot = p.of(46.8227, 114.2234, -70);
+    private final Pose goShootOtherSideSegment5End = p.of(46.5981, 120.409, -80);
+    private final Pose intakeFromFlower = p.of(46.92198581560283, 130.15602836879435, 270);
+    private final Pose farShoot = p.of(46.8227, 114.2234, 290);
 
     //Idk what these farShootSegments that pedro gave me are but I'll keep them just in case they are important
     private final Pose farShootSegment1Start = p.of(46.8227, 114.2234, 90);

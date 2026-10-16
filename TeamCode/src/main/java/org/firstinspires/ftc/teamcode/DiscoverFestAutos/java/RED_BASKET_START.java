@@ -28,10 +28,10 @@ public class RED_BASKET_START extends OpMode {
     private RedHiveTipDetector hiveDetector;
     private final PoseFactory p = PoseFactory.degrees();
     private final Pose startPose = p.of(55.5, 8.4, 90);
-    private final Pose goToGarden = p.of(19.6, 7.9, 180);
-    private final Pose goToGardenControl = p.of(47.92198581560284, 22.442080378250598, 180);
-    private final Pose intakeFromGarden = p.of(8.684397163120554, 8.189125295508282, 180);
-    private final Pose goShootOtherSide = p.of(59.02127659574469, 132.5579196217494, 270);
+    private final Pose goToGarden = p.of(19.6, 7.9, 55);
+    private final Pose goToGardenControl = p.of(47.92198581560284, 22.442080378250598, 0);
+    private final Pose intakeFromGarden = p.of(8.684397163120554, 8.189125295508282, 0);
+    private final Pose goShootOtherSide = p.of(59.02127659574469, 132.5579196217494, 55);
     private final Pose goShootOtherSideControl1 = p.of(75.46217494089834, 8.569739952718681, 270);
     private final Pose goShootOtherSideControl2 = p.of(56.70035460992909, 37.40648564548357, 270);
     private final Pose backUpForIntake = p.of(59.21040189125295, 114.87115839243496, 90);

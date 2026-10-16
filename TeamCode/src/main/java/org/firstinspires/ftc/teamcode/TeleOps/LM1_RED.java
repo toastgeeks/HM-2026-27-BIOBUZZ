@@ -4,6 +4,7 @@ import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -28,8 +29,6 @@ public class LM1_RED extends OpMode {
     private FlowerIntake arm;
 
     private NEW_SHOOTER_TRANSFER newShooter;
-
-    int shooterSpeed = 3;
 
     int armState = 2;
 
@@ -134,7 +133,14 @@ public class LM1_RED extends OpMode {
         telemetry.addData("Robot Y", robotPose.y());
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
 
-        intake.run(gamepad1.right_trigger - gamepad1.left_trigger);
+        intake.run(gamepad1.right_trigger - gamepad1.left_trigger).schedule();
+
+        if (gamepad1.right_trigger - gamepad1.left_trigger > 0) {
+            telemetry.addLine("Intake Active");
+        }
+        else {
+            telemetry.addLine("Intake Not Active");
+        }
 
 
         if (gamepad1.aWasPressed()){
@@ -147,47 +153,70 @@ public class LM1_RED extends OpMode {
         }
 
         if (armState == 2){
-            instant(() -> arm.lowerArm());
+            instant(() -> arm.lowerArm()).schedule();
         }
         else if(armState == 1) {
-            instant(() -> arm.raiseArm());
+            instant(() -> arm.raiseArm()).schedule();
         }
 
         if (gamepad2.right_trigger > 0.1){
-            newShooter.rev();
+            newShooter.rev().schedule();
+            telemetry.addLine("Flywheel Active");
         }
         else {
-            newShooter.stop();
+            newShooter.stop().schedule();
+            telemetry.addLine("Flywheel Inactive");
+        }
+
+        if (gamepad2.left_trigger > 0.1){
+            newShooter.transfer().schedule();
+            telemetry.addLine("Transfer Active");
+        }
+        else {
+            newShooter.transferStop().schedule();
+            telemetry.addLine("Transfer Inactive");
         }
 
         if (gamepad2.a){
-            newShooter.fire(500);
+            newShooter.fire(500).schedule();
+            telemetry.addLine("Firing All");
+        }
+        else {
+            telemetry.addLine("Not Firing All");
         }
 
         if (gamepad2.b){
-            newShooter.fire(100);
+            newShooter.fire(100).schedule();
+            telemetry.addLine("Firing One");
+        }
+        else {
+            telemetry.addLine("Not Firing One");
         }
 
-        if (gamepad2.dpadUpWasPressed()) {
-            if (shooterSpeed < 5) shooterSpeed += 1;
+
+        if(gamepad2.dpadUpWasPressed()) {
+            newShooter.newShooterSpeed(0.01);
         }
         if (gamepad2.dpadDownWasPressed()) {
-            if (shooterSpeed > 0) shooterSpeed -= 1;
+            newShooter.newShooterSpeed(-0.01);
         }
 
-        if (shooterSpeed == 0) {
-            telemetry.addLine("Shooter Speed = 0%");
-        } else if (shooterSpeed == 1) {
-            telemetry.addLine("Shooter Speed = 55%");
-        } else if (shooterSpeed == 2) {
-            telemetry.addLine("Shooter Speed = 60%");
-        } else if (shooterSpeed == 3) {
-            telemetry.addLine("Shooter Speed = 65%");
-        } else if (shooterSpeed == 4) {
-            telemetry.addLine("Shooter Speed = 70%");
-        } else if (shooterSpeed == 5) {
-            telemetry.addLine("Shooter Speed = 75%");
-        }
+        //if (shooterSpeed == 0) {
+        //    telemetry.addLine("Shooter Speed = 0%");
+        //} else if (shooterSpeed == 1) {
+        //    telemetry.addLine("Shooter Speed = 55%");
+        //} else if (shooterSpeed == 2) {
+        //    telemetry.addLine("Shooter Speed = 60%");
+        //} else if (shooterSpeed == 3) {
+        //    telemetry.addLine("Shooter Speed = 65%");
+        //} else if (shooterSpeed == 4) {
+        //    telemetry.addLine("Shooter Speed = 70%");
+        //} else if (shooterSpeed == 5) {
+        //    telemetry.addLine("Shooter Speed = 75%");
+        //}
+        telemetry.addData("Shooter Speed", newShooter.shooterSpeed);
+
+        Scheduler.execute();
 
     }
 
@@ -207,6 +236,8 @@ public class LM1_RED extends OpMode {
     private double clip(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
+
+
 
 
 }

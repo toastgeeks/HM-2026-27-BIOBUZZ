@@ -68,7 +68,7 @@ public class FlywheelTuner extends OpMode{
         //set velocity
         flyWheelMotor.setVelocity((curTargetVelocity));
 
-        double curVelocity = flyWheelMotor.getVelocity();
+        double curVelocity = -flyWheelMotor.getVelocity();
         double error = curTargetVelocity - curVelocity;
 
         telemetry.addData("Target Velocity", curTargetVelocity);

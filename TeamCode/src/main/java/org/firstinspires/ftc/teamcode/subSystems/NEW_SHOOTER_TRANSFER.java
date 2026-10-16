@@ -14,14 +14,21 @@ public class NEW_SHOOTER_TRANSFER {
     private DcMotorEx shooter;
     private DcMotorEx transfer;
     //private Servo gate;
-    public double shooterSpeed;
+    public double shooterSpeed = 0.65;
+
+    public double transferSpeed = 0.5;
 
     public NEW_SHOOTER_TRANSFER(HardwareMap hw) {
         shooter = hw.get(DcMotorEx.class, "shooter");
         shooter.setDirection(DcMotorSimple.Direction.FORWARD);
         transfer = hw.get(DcMotorEx.class, "transfer");
+        transfer.setDirection(DcMotorSimple.Direction.REVERSE);
         //gate = hw.get(Servo.class, "gate");
 
+    }
+
+    public void newShooterSpeed(double newShooterSpeed) {
+        this.shooterSpeed += newShooterSpeed;
     }
 
     public Command rev() {
@@ -49,6 +56,17 @@ public class NEW_SHOOTER_TRANSFER {
                 instant(() -> shooter.setPower(0.0))
                 //instant(() -> gate.setPosition(90))
         ).requiring(this);
+    }
+
+    public Command transfer() {
+        return instant(() -> transfer.setPower(transferSpeed)).requiring(this);
+    }
+
+    public Command transferStop() {
+        return instant(() -> {
+            transfer.setPower(0);
+            //gate.setPosition(90);
+        }).requiring(this);
     }
 
 }
