@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.DiscoverFestAutos.java;
+package org.firstinspires.ftc.teamcode.DiscoverFestAutos.java.OldAutos;
 
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;

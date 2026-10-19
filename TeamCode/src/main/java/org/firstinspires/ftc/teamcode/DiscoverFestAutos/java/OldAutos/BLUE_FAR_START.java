@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.DiscoverFestAutos.java;
+package org.firstinspires.ftc.teamcode.DiscoverFestAutos.java.OldAutos;
 
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
@@ -22,11 +22,11 @@ import static com.pedropathing.ivy.commands.Commands.*;
 
 
 @Autonomous
-public class RED_FAR_START extends OpMode {
+public class BLUE_FAR_START extends OpMode {
     private IntakeCode intake;
     private NEW_SHOOTER_TRANSFER newShooter;
     private Follower follower;
-    private RedHiveTipDetector hiveDetector;
+    private BlueHiveTipDetector hiveDetector;
     private boolean waitForHive = false;
     private final PoseFactory p = PoseFactory.degrees();
     private final Pose startPose = p.of(59.67966903073285, 133.77777777777783, 270);

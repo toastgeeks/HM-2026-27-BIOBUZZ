@@ -34,6 +34,9 @@ public class NEW_SHOOTER_TRANSFER {
     public Command rev() {
         return instant(() -> shooter.setPower(shooterSpeed)).requiring(this);
     }
+    public Command stopRev() {
+        return instant(() -> shooter.setPower(0)).requiring(this);
+    }
 
     public Command stop() {
         return instant(() -> {

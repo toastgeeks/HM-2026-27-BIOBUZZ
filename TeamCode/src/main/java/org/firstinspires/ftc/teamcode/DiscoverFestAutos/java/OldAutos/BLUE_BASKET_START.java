@@ -1,0 +1,192 @@
+package org.firstinspires.ftc.teamcode.DiscoverFestAutos.java.OldAutos;
+
+import com.pedropathing.api.PoseFactory;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.subSystems.BlueHiveTipDetector;
+import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
+import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
+import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
+import org.firstinspires.ftc.teamcode.subSystems.NEW_SHOOTER_TRANSFER;
+
+
+import static com.pedropathing.api.Paths.curve;
+import static com.pedropathing.api.Paths.line;
+import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.*;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.pedro.PedroCommands.follow;
+
+
+@Autonomous
+public class BLUE_BASKET_START extends OpMode {
+    private IntakeCode intake;
+    private NEW_SHOOTER_TRANSFER newShooter;
+    private Follower follower;
+    private BlueHiveTipDetector hiveDetector;
+    private final PoseFactory p = PoseFactory.degrees();
+    private final Pose startPose = p.of(55.5, 8.4, 90);
+    private final Pose goToGarden = p.of(19.6, 7.9, 180);
+    private final Pose goToGardenControl = p.of(47.92198581560284, 22.442080378250598, 180);
+    private final Pose intakeFromGarden = p.of(8.684397163120554, 8.189125295508282, 180);
+    private final Pose goShootOtherSide = p.of(59.02127659574469, 132.5579196217494, 270);
+    private final Pose goShootOtherSideControl1 = p.of(75.46217494089834, 8.569739952718681, 270);
+    private final Pose goShootOtherSideControl2 = p.of(56.70035460992909, 37.40648564548357, 270);
+    private final Pose backUpForIntake = p.of(59.21040189125295, 114.87115839243496, 90);
+    private final Pose farIntake = p.of(58.495271867612296, 132.57565011820333, 90);
+    private final Pose goPark = p.of(13.34633569739953, 113.07801418439716, 0);
+    private final Pose goParkControl = p.of(53.04964539007092, 110.89952718676122, 0);
+
+
+
+
+    private Path goIntake() {
+        return curve(startPose, goToGardenControl, goToGarden).linear(startPose, goToGarden);
+    }
+    private Path closeIntake(){
+        return line(goToGarden,intakeFromGarden).linear(goToGarden,intakeFromGarden);
+    }
+    private Path goShootCloseAgain(){return curve(intakeFromGarden,startPose, goToGarden).linear(intakeFromGarden,startPose);}
+    private Path goShootFar() {
+        return curve(intakeFromGarden,goShootOtherSideControl1,goShootOtherSideControl2,goShootOtherSide).linear(intakeFromGarden, goShootOtherSide);
+    }
+    private Path backUpForIntake(){
+        return line(goShootOtherSide,backUpForIntake).linear(goShootOtherSide,backUpForIntake);
+    }
+    private Path farIntake(){
+        return line(backUpForIntake,farIntake).linear(backUpForIntake,farIntake);
+    }
+    private Path goPark(){
+        return curve(farIntake,goParkControl,goPark).linear(farIntake,goPark);
+    }
+
+    private Command shootHive() {
+
+        return sequential(
+
+                // only shoot if the hive tags are visible
+                conditional(
+                        () -> hiveDetector.areHiveTagsVisible(),
+
+                        // tags visible: take the first shot
+                        sequential(
+                                newShooter.fire(100),
+
+                                // give the hive time to tip
+                                waitMs(3000),
+
+                                // check again before the second shot
+                                conditional(
+                                        () -> hiveDetector.areHiveTagsVisible(),
+
+                                        sequential(
+                                                newShooter.fire(100),
+                                                waitMs(3000),
+
+                                                // check before the final shot
+                                                conditional(
+                                                        () -> hiveDetector.areHiveTagsVisible(),
+
+                                                        // still visible: final attempt
+                                                        newShooter.fire(100),
+
+                                                        // tags disappeared: don't shoot
+                                                        instant(() -> {})
+                                                )
+                                        ),
+
+                                        // tags disappeared: don't shoot
+                                        instant(() -> {})
+                                )
+                        ),
+
+                        // tags not visible initially: don't shoot at all
+                        instant(() -> {})
+                )
+        );
+    }
+
+    private Command autoRoutine() {
+        double time_between_shots = 250;
+        double flywheel_spinup_time = 800;
+        return sequential(
+
+                instant(() -> Shooter_Transfer.shooterState = 2),
+
+                waitMs(3000),
+
+                newShooter.fire(500),
+
+                instant(() -> intake.run(1.0)),
+
+                follow(follower, goIntake()),
+
+                follow(follower, closeIntake()),
+
+                instant(() -> intake.stop()),
+
+                follow(follower, goShootCloseAgain()),
+
+                shootHive(),
+
+                instant(() -> intake.run(1.0)),
+
+                follow(follower, goShootFar()),
+
+                shootHive(),
+
+                instant(() -> intake.stop()),
+
+                follow(follower, goPark())
+        );
+    }
+
+
+    @Override
+    public void init() {
+        Scheduler.reset();
+
+        follower = Constants.create(hardwareMap);
+        follower.setPose(startPose);
+
+        intake = new IntakeCode(hardwareMap);
+        newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
+
+        hiveDetector = new BlueHiveTipDetector();
+        hiveDetector.init(hardwareMap);
+
+        hiveDetector = new BlueHiveTipDetector();
+        hiveDetector.init(hardwareMap);
+
+        newShooter.stop();
+    }
+
+    @Override
+    public void start() {
+        schedule(autoRoutine());
+    }
+
+
+    @Override
+    public void loop() {
+        follower.update();
+        Scheduler.execute();
+
+        telemetry.addData("X", follower.pose().x());
+        telemetry.addData("Y", follower.pose().y());
+        telemetry.addData("Heading", Math.toDegrees(follower.pose().heading()));
+        telemetry.addData("Follower Mode", follower.mode());
+        telemetry.update();
+    }
+
+    @Override
+    public void stop() {
+        OpModeStorage.autonomousEndPose = follower.pose(); //saves your position in that file
+    }
+}
