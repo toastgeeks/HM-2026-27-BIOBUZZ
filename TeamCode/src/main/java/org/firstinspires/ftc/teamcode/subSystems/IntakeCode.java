@@ -10,15 +10,15 @@ import static com.pedropathing.ivy.commands.Commands.infinite;
 import static com.pedropathing.ivy.commands.Commands.instant;
 
 public class IntakeCode {
-    private final DcMotor motor;
+    private final DcMotor intake;
 
     public IntakeCode(HardwareMap hw) {
-        motor = hw.get(DcMotor.class, "intake");
-        motor.setDirection(DcMotor.Direction.REVERSE);
+        intake = hw.get(DcMotor.class, "intake");
+        intake.setDirection(DcMotor.Direction.REVERSE);
     }
 
     public Command run(double power) {
-        return instant(() -> motor.setPower(power)).requiring(this);
+        return instant(() -> intake.setPower(power)).requiring(this);
     }
 
     public Command stop() {
@@ -26,6 +26,6 @@ public class IntakeCode {
     }
 
     public Command manual(DoubleSupplier power) {
-        return infinite(() -> motor.setPower(power.getAsDouble())).requiring(this);
+        return infinite(() -> intake.setPower(power.getAsDouble())).requiring(this);
     }
 }

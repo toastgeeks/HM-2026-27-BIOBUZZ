@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.subSystems.NEW_SHOOTER_TRANSFER;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
 import org.firstinspires.ftc.teamcode.subSystems.RedHiveTipDetector;
 
-@Autonomous
+@Autonomous(name = "Red Basket Auto")
 public class LM1_RED_BASKET_START extends OpMode {
 
     private IntakeCode intake;

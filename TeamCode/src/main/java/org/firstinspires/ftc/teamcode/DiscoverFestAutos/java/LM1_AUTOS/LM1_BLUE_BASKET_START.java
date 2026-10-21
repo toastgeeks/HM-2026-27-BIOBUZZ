@@ -18,7 +18,7 @@ import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
-@Autonomous
+@Autonomous(name = "Blue Basket Auto")
 public class LM1_BLUE_BASKET_START extends OpMode {
 
     private IntakeCode intake;

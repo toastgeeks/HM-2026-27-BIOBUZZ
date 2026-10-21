@@ -48,6 +48,8 @@ public class LM1_BLUE extends OpMode {
 
         newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
 
+        newShooter.newServoPose(0.5);
+
         newShooter.stop();
     }
 
@@ -132,6 +134,7 @@ public class LM1_BLUE extends OpMode {
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
 
         intake.run(gamepad1.right_trigger - gamepad1.left_trigger);
+        newShooter.transfer(gamepad1.right_trigger - gamepad1.left_trigger).schedule();
 
         if (gamepad1.aWasPressed()){
             if(armState == 1){
@@ -159,6 +162,7 @@ public class LM1_BLUE extends OpMode {
 
         if (gamepad2.a){
             newShooter.fire(500);
+            telemetry.addLine("firing");
         }
 
         if (gamepad2.b){

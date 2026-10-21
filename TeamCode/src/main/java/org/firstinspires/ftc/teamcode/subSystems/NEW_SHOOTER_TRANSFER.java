@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-//import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
@@ -14,10 +14,9 @@ public class NEW_SHOOTER_TRANSFER {
     private DcMotorEx shooter1;
     private DcMotorEx shooter2;
     private DcMotorEx transfer;
-    //private Servo gate;
+    private Servo gate;
     public double shooterSpeed = 0.65;
-
-    public double transferSpeed = 0.5;
+    private double servoPose = 0.5;
 
     public NEW_SHOOTER_TRANSFER(HardwareMap hw) {
         shooter1 = hw.get(DcMotorEx.class, "shooter1");
@@ -26,7 +25,7 @@ public class NEW_SHOOTER_TRANSFER {
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
         transfer = hw.get(DcMotorEx.class, "transfer");
         transfer.setDirection(DcMotorSimple.Direction.REVERSE);
-        //gate = hw.get(Servo.class, "gate");
+        gate = hw.get(Servo.class, "gate");
 
     }
 
@@ -52,7 +51,6 @@ public class NEW_SHOOTER_TRANSFER {
         return instant(() -> {
             shooter1.setPower(0);
             shooter2.setPower(0);
-            //gate.setPosition(90);
         }).requiring(this);
     }
 
@@ -64,24 +62,34 @@ public class NEW_SHOOTER_TRANSFER {
                         shooter2.setPower(shooterSpeed);
                     }
                 }),
-                //instant(() -> gate.setPosition(0)),
+                instant(() -> gate.setPosition(0.3)),
                 instant(() -> transfer.setPower(1.0)),
                 waitMs(transferTime),
                 instant(() -> transfer.setPower(0.0)),
                 instant(() -> shooter1.setPower(0.0)),
-                instant(() -> shooter2.setPower(0.0))
-                //instant(() -> gate.setPosition(90))
+                instant(() -> shooter2.setPower(0.0)),
+                instant(() -> gate.setPosition(0.5))
         ).requiring(this);
     }
 
-    public Command transfer() {
+    public Command transfer(double transferSpeed) {
         return instant(() -> transfer.setPower(transferSpeed)).requiring(this);
     }
 
     public Command transferStop() {
         return instant(() -> {
             transfer.setPower(0);
-            //gate.setPosition(90);
+        }).requiring(this);
+    }
+
+    public void newServoPose(double newServoPose) {
+        this.servoPose = newServoPose;
+        this.gate.setPosition(this.servoPose);
+    }
+    public double getServoPose() { return this.servoPose; }
+    public Command servoTuning() {
+        return instant(() -> {
+            gate.setPosition(servoPose);
         }).requiring(this);
     }
 

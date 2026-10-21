@@ -30,6 +30,8 @@ public class LM1_RED extends OpMode {
 
     private NEW_SHOOTER_TRANSFER newShooter;
 
+    private NEW_SHOOTER_TRANSFER servo;
+
     int armState = 2;
 
     private static final double AIM_KP = 1.5;
@@ -51,6 +53,8 @@ public class LM1_RED extends OpMode {
         newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
 
         newShooter.stop();
+
+        newShooter.newServoPose(0.5);
     }
 
 
@@ -134,6 +138,15 @@ public class LM1_RED extends OpMode {
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
 
         intake.run(gamepad1.right_trigger - gamepad1.left_trigger).schedule();
+        newShooter.transfer(gamepad1.right_trigger - gamepad1.left_trigger).schedule();
+        newShooter.transfer(gamepad2.left_trigger).schedule();
+
+        if (gamepad2.square){
+            newShooter.newServoPose(0.3);
+        }
+        else {
+            newShooter.newServoPose(0.5);
+        }
 
         if (gamepad1.right_trigger - gamepad1.left_trigger > 0) {
             telemetry.addLine("Intake Active");
@@ -169,7 +182,7 @@ public class LM1_RED extends OpMode {
         }
 
         if (gamepad2.left_trigger > 0.1){
-            newShooter.transfer().schedule();
+            newShooter.transfer(0.5).schedule();
             telemetry.addLine("Transfer Active");
         }
         else {
@@ -200,6 +213,9 @@ public class LM1_RED extends OpMode {
         if (gamepad2.dpadDownWasPressed()) {
             newShooter.newShooterSpeed(-0.01);
         }
+
+
+        telemetry.addData("Servo Position", newShooter.getServoPose());
 
         //if (shooterSpeed == 0) {
         //    telemetry.addLine("Shooter Speed = 0%");
