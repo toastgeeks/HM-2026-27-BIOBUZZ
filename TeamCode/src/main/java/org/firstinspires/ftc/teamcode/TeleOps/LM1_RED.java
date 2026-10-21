@@ -138,7 +138,7 @@ public class LM1_RED extends OpMode {
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
 
         intake.run(gamepad1.right_trigger - gamepad1.left_trigger).schedule();
-        newShooter.transfer(gamepad1.right_trigger - gamepad1.left_trigger).schedule();
+//        newShooter.transfer(gamepad1.right_trigger - gamepad1.left_trigger).schedule();
         newShooter.transfer(gamepad2.left_trigger).schedule();
 
         if (gamepad2.square){
@@ -190,13 +190,13 @@ public class LM1_RED extends OpMode {
             telemetry.addLine("Transfer Inactive");
         }
 
-        if (gamepad2.a){
-            newShooter.fire(500).schedule();
-            telemetry.addLine("Firing All");
-        }
-        else {
-            telemetry.addLine("Not Firing All");
-        }
+//        if (gamepad2.a){
+//            newShooter.fire(500).schedule();
+//            telemetry.addLine("Firing All");
+//        }
+//        else {
+//            telemetry.addLine("Not Firing All");
+//        }
 
         if (gamepad2.b){
             newShooter.fire(100).schedule();
@@ -208,10 +208,10 @@ public class LM1_RED extends OpMode {
 
 
         if(gamepad2.dpadUpWasPressed()) {
-            newShooter.newShooterSpeed(0.01);
+            newShooter.increaseTargetVelocity();
         }
         if (gamepad2.dpadDownWasPressed()) {
-            newShooter.newShooterSpeed(-0.01);
+            newShooter.decreaseTargetVelocity();
         }
 
 
@@ -230,7 +230,8 @@ public class LM1_RED extends OpMode {
         //} else if (shooterSpeed == 5) {
         //    telemetry.addLine("Shooter Speed = 75%");
         //}
-        telemetry.addData("Shooter Speed", newShooter.shooterSpeed);
+        telemetry.addData("Shooter1 Speed", newShooter.getShooterVelocity());
+        telemetry.addData("Shooter2 Speed", newShooter.getShooter2Velocity());
 
         Scheduler.execute();
 
