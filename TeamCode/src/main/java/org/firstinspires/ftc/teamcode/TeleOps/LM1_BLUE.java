@@ -54,7 +54,7 @@ public class LM1_BLUE extends OpMode {
 
         newShooter.stop();
 
-        newShooter.newServoPose(0.5);
+        newShooter.newServoPose(0.6);
     }
 
 
@@ -145,7 +145,7 @@ public class LM1_BLUE extends OpMode {
             newShooter.newServoPose(0.3);
         }
         else {
-            newShooter.newServoPose(0.5);
+            newShooter.newServoPose(0.6);
         }
 
         if (gamepad1.right_trigger - gamepad1.left_trigger > 0) {
