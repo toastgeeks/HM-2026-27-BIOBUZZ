@@ -24,6 +24,7 @@ public class LM1_BLUE_BASKET_START extends OpMode {
     private IntakeCode intake;
     private NEW_SHOOTER_TRANSFER newShooter;
     private Follower follower;
+    private FlowerIntake arm;
     private BlueHiveTipDetector hiveDetector;
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
@@ -35,11 +36,13 @@ public class LM1_BLUE_BASKET_START extends OpMode {
     private final Pose intakeFromGarden = poseFactory.of(8.0225, 7.8688, 180);
     private final Pose doubleSureTip = poseFactory.of(36.6058, 18.3972, 235);
     private final Pose doubleSureTipControl1 = poseFactory.of(22.6194, 23.5307, 0);
-    private final Pose goShootOtherSide = poseFactory.of(46.5981, 120.409, 105);
+    private final Pose goShootOtherSide = poseFactory.of(46.9326, 120.409, 105);
     private final Pose goShootOtherSideControl1 = poseFactory.of(35.7518, 57.0248, 0);
     private final Pose goShootOtherSideControl2 = poseFactory.of(21.143, 117.4232, 0);
-    private final Pose goPark = poseFactory.of(12.4669, 97.039, 180);
-    private final Pose goParkControl1 = poseFactory.of(40.2742, 99.0461, 0);
+    private final Pose intakeFromFlower = poseFactory.of(47.1253, 125.2553, 90);
+    private final Pose shootAfterFlower = poseFactory.of(46.8333, 120.5615, 105);
+    private final Pose goPark = poseFactory.of(13.2134, 116.0176, 0);
+    private final Pose goParkControl1 = poseFactory.of(31.5272, 112.7329, 0);
 
     public Path firstShots() {
         return line(firstShotsStart, firstShots).linear(firstShotsStart, firstShots);
@@ -61,9 +64,18 @@ public class LM1_BLUE_BASKET_START extends OpMode {
         return curve(doubleSureTip, goShootOtherSideControl1, goShootOtherSideControl2, goShootOtherSide).linear(doubleSureTip, goShootOtherSide);
     }
 
-    public Path goPark() {
-        return curve(goShootOtherSide, goParkControl1, goPark).linear(goShootOtherSide, goPark);
+    public Path intakeFromFlower() {
+        return line(goShootOtherSide, intakeFromFlower).linear(goShootOtherSide, intakeFromFlower);
     }
+
+    public Path shootAfterFlower() {
+        return line(intakeFromFlower, shootAfterFlower).linear(intakeFromFlower, shootAfterFlower);
+    }
+
+    public Path goPark() {
+        return curve(shootAfterFlower, goParkControl1, goPark).linear(shootAfterFlower, goPark);
+    }
+
 
     private Command shootHive() {
 
@@ -126,7 +138,12 @@ public class LM1_BLUE_BASKET_START extends OpMode {
                 follow(follower, doubleSureTip()),
                 shootHive(),
                 follow(follower, goShootOtherSide()),
-                newShooter.fire(400),
+                shootHive(),
+                instant(() -> arm.lowerArm()),
+                follow(follower, intakeFromFlower()),
+                follow(follower, shootAfterFlower()),
+                instant(() -> arm.raiseArm()),
+                shootHive(),
                 newShooter.stopRev(),
                 follow(follower, goPark())
         );
