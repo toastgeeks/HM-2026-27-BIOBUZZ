@@ -21,14 +21,14 @@ public class NEW_SHOOTER_TRANSFER {
     public double shooterSpeed = 0.65;
     private double servoPose = 0.5;
 
-    public static final double SHOOTER_P = 200.8137;
+    public static final double SHOOTER_P = 266.8137;
     public static final double SHOOTER_I = 0;
     public static final double SHOOTER_D = 0;
     public static final double SHOOTER_F = 13.0907;
-    public static final double VELOCITY_STEP = 25;
+    public static final double VELOCITY_STEP = 10;
 
     // Target flywheel velocity in ticks per second
-    public double targetVelocity = 1750;
+    public double targetVelocity = 1650;
     private boolean shooterOn = false;
 
     public NEW_SHOOTER_TRANSFER(HardwareMap hw) {
