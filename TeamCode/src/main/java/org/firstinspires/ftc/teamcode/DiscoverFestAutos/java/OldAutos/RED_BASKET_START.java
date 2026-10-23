@@ -63,51 +63,51 @@ public class RED_BASKET_START extends OpMode {
         return curve(farIntake,goParkControl,goPark).linear(farIntake,goPark);
     }
 
-    private Command shootHive() {
-
-        return sequential(
-
-                // only shoot if the hive tags are visible
-                conditional(
-                        () -> hiveDetector.areHiveTagsVisible(),
-
-                        // tags visible: take the first shot
-                        sequential(
-                                newShooter.fire(100),
-
-                                // give the hive time to tip
-                                waitMs(3000),
-
-                                // check again before the second shot
-                                conditional(
-                                        () -> hiveDetector.areHiveTagsVisible(),
-
-                                        sequential(
-                                                newShooter.fire(100),
-                                                waitMs(3000),
-
-                                                // check before the final shot
-                                                conditional(
-                                                        () -> hiveDetector.areHiveTagsVisible(),
-
-                                                        // still visible: final attempt
-                                                        newShooter.fire(100),
-
-                                                        // tags disappeared: don't shoot
-                                                        instant(() -> {})
-                                                )
-                                        ),
-
-                                        // tags disappeared: don't shoot
-                                        instant(() -> {})
-                                )
-                        ),
-
-                        // tags not visible initially: don't shoot at all
-                        instant(() -> {})
-                )
-        );
-    }
+    //private Command shootHive() {
+//
+    //    return sequential(
+//
+    //            // only shoot if the hive tags are visible
+    //            conditional(
+    //                    () -> hiveDetector.areHiveTagsVisible(),
+//
+    //                    // tags visible: take the first shot
+    //                    sequential(
+    //                            newShooter.fire(100),
+//
+    //                            // give the hive time to tip
+    //                            waitMs(3000),
+//
+    //                            // check again before the second shot
+    //                            conditional(
+    //                                    () -> hiveDetector.areHiveTagsVisible(),
+//
+    //                                    sequential(
+    //                                            newShooter.fire(100),
+    //                                            waitMs(3000),
+//
+    //                                            // check before the final shot
+    //                                            conditional(
+    //                                                    () -> hiveDetector.areHiveTagsVisible(),
+//
+    //                                                    // still visible: final attempt
+    //                                                    newShooter.fire(100),
+//
+    //                                                    // tags disappeared: don't shoot
+    //                                                    instant(() -> {})
+    //                                            )
+    //                                    ),
+//
+    //                                    // tags disappeared: don't shoot
+    //                                    instant(() -> {})
+    //                            )
+    //                    ),
+//
+    //                    // tags not visible initially: don't shoot at all
+    //                    instant(() -> {})
+    //            )
+    //    );
+    //}
 
     private Command autoRoutine() {
         double time_between_shots = 250;
@@ -118,7 +118,7 @@ public class RED_BASKET_START extends OpMode {
 
                 waitMs(3000),
 
-                newShooter.fire(500),
+               // newShooter.fire(500),
 
                 instant(() -> intake.run(1.0)),
 
@@ -130,13 +130,13 @@ public class RED_BASKET_START extends OpMode {
 
                 follow(follower, goShootCloseAgain()),
 
-                shootHive(),
+               // shootHive(),
 
                 instant(() -> intake.run(1.0)),
 
                 follow(follower, goShootFar()),
 
-                shootHive(),
+                //shootHive(),
 
                 instant(() -> intake.stop()),
 

@@ -122,21 +122,20 @@ public class NEW_SHOOTER_TRANSFER {
         return instant(() -> spinDown()).requiring(this);
     }
 
-    public Command fire(double transferTime) {
-        return sequential(
-                instant(() -> {
-                    if (!shooterOn) {
-                        spinUp();
-                    }
-                }),
-                instant(() -> gate.setPosition(0.3)),
-                instant(() -> transfer.setPower(1.0)),
-                waitMs(transferTime),
-                instant(() -> transfer.setPower(0.0)),
-                instant(() -> spinDown()),
-                instant(() -> gate.setPosition(0.5))
-        ).requiring(this);
-    }
+    //public Command fire(double transferTime) {
+    //    return sequential(
+    //            instant(() -> {
+    //                if (!shooterOn) {
+    //                    spinUp();
+    //                }
+    //            }),
+    //            openGate(),
+    //            instant(() -> transfer.setPower(1.0)),
+    //            waitMs(transferTime),
+    //            instant(() -> transfer.setPower(0.0)),
+    //            closeGate()
+    //    ).requiring(this);
+    //}
 
     public Command transfer(double transferSpeed) {
         return instant(() -> transfer.setPower(transferSpeed)).requiring(this);
@@ -156,6 +155,18 @@ public class NEW_SHOOTER_TRANSFER {
     public Command servoTuning() {
         return instant(() -> {
             gate.setPosition(servoPose);
+        }).requiring(this);
+    }
+
+    public Command openGate() {
+        return instant(() -> {
+            gate.setPosition(0.3);
+        }).requiring(this);
+    }
+
+    public Command closeGate() {
+        return instant(() -> {
+            gate.setPosition(0.6);
         }).requiring(this);
     }
 

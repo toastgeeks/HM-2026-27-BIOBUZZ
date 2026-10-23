@@ -13,10 +13,10 @@ public class FlowerIntake {
     }
 
     public Command lowerArm(){
-        return instant(() -> arm.setPosition(0.0));
+        return instant(() -> arm.setPosition(0.25)).requiring(this);
     }
 
     public Command raiseArm(){
-        return instant(() -> arm.setPosition(90.0));
+        return instant(() -> arm.setPosition(0.75)).requiring(this);
     }
 }

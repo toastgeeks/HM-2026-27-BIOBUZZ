@@ -65,7 +65,7 @@ public class BLUE_FAR_START extends OpMode {
 
                 waitMs(4000),
 
-                newShooter.fire(500),
+                //newShooter.fire(500),
 
                 instant(() -> Shooter_Transfer.shooterState = 0),
 
@@ -81,7 +81,7 @@ public class BLUE_FAR_START extends OpMode {
 
                 waitMs(2000),
 
-                newShooter.fire(500),
+               // newShooter.fire(500),
 
                 instant(() -> Shooter_Transfer.shooterState = 0),
 

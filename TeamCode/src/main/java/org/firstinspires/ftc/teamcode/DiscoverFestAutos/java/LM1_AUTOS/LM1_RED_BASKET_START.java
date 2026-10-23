@@ -78,51 +78,51 @@ public class LM1_RED_BASKET_START extends OpMode {
     }
 
 
-    private Command shootHive() {
-
-        return sequential(
-
-                // only shoot if the hive tags are visible
-                conditional(
-                        () -> hiveDetector.areHiveTagsVisible(),
-
-                        // tags visible: take the first shot
-                        sequential(
-                                newShooter.fire(100),
-
-                                // give the hive time to tip
-                                waitMs(3000),
-
-                                // check again before the second shot
-                                conditional(
-                                        () -> hiveDetector.areHiveTagsVisible(),
-
-                                        sequential(
-                                                newShooter.fire(100),
-                                                waitMs(3000),
-
-                                                // check before the final shot
-                                                conditional(
-                                                        () -> hiveDetector.areHiveTagsVisible(),
-
-                                                        // still visible: final attempt
-                                                        newShooter.fire(100),
-
-                                                        // tags disappeared: don't shoot
-                                                        instant(() -> {})
-                                                )
-                                        ),
-
-                                        // tags disappeared: don't shoot
-                                        instant(() -> {})
-                                )
-                        ),
-
-                        // tags not visible initially: don't shoot at all
-                        instant(() -> {})
-                )
-        );
-    }
+    //private Command shootHive() {
+//
+    //    return sequential(
+//
+    //            // only shoot if the hive tags are visible
+    //            conditional(
+    //                    () -> hiveDetector.areHiveTagsVisible(),
+//
+    //                    // tags visible: take the first shot
+    //                    sequential(
+    //                            newShooter.fire(100),
+//
+    //                            // give the hive time to tip
+    //                            waitMs(3000),
+//
+    //                            // check again before the second shot
+    //                            conditional(
+    //                                    () -> hiveDetector.areHiveTagsVisible(),
+//
+    //                                    sequential(
+    //                                            newShooter.fire(100),
+    //                                            waitMs(3000),
+//
+    //                                            // check before the final shot
+    //                                            conditional(
+    //                                                    () -> hiveDetector.areHiveTagsVisible(),
+//
+    //                                                    // still visible: final attempt
+    //                                                    newShooter.fire(100),
+//
+    //                                                    // tags disappeared: don't shoot
+    //                                                    instant(() -> {})
+    //                                            )
+    //                                    ),
+//
+    //                                    // tags disappeared: don't shoot
+    //                                    instant(() -> {})
+    //                            )
+    //                    ),
+//
+    //                    // tags not visible initially: don't shoot at all
+    //                    instant(() -> {})
+    //            )
+    //    );
+    //}
 
 
 
@@ -131,20 +131,20 @@ public class LM1_RED_BASKET_START extends OpMode {
                 newShooter.rev(),
                 waitMs(1000),
                 follow(follower, firstShots()),
-                newShooter.fire(400),
+               // newShooter.fire(400),
                 intake.run(1),
                 follow(follower, goToGarden()),
                 follow(follower, intakeFromGarden()),
                 intake.run(0),
                 follow(follower, doubleSureTip()),
-                shootHive(),
+               // shootHive(),
                 follow(follower, goShootOtherSide()),
-                shootHive(),
+               // shootHive(),
                 instant(() -> arm.lowerArm()),
                 follow(follower, intakeFromFlower()),
                 follow(follower, shootAfterFlower()),
                 instant(() -> arm.raiseArm()),
-                shootHive(),
+               // shootHive(),
                 newShooter.stopRev(),
                 follow(follower, goPark())
         );

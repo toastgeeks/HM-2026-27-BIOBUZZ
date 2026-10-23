@@ -52,9 +52,13 @@ public class LM1_BLUE extends OpMode {
 
         newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
 
-        newShooter.stop();
+        newShooter.stop().schedule();
 
         newShooter.newServoPose(0.6);
+
+        arm.lowerArm().schedule();
+
+        Scheduler.execute();
     }
 
 
@@ -142,10 +146,10 @@ public class LM1_BLUE extends OpMode {
         newShooter.transfer(gamepad2.left_trigger).schedule();
 
         if (gamepad2.square){
-            newShooter.newServoPose(0.3);
+            newShooter.openGate().schedule();
         }
         else {
-            newShooter.newServoPose(0.6);
+            newShooter.closeGate().schedule();
         }
 
         if (gamepad1.right_trigger - gamepad1.left_trigger > 0) {
@@ -156,20 +160,12 @@ public class LM1_BLUE extends OpMode {
         }
 
 
-        if (gamepad1.aWasPressed()){
-            if(armState == 1){
-                armState = 2;
-            }
-            else {
-                armState = 1;
-            }
+        if (gamepad1.triangle) {
+            arm.raiseArm().schedule();
         }
 
-        if (armState == 2){
-            instant(() -> arm.lowerArm()).schedule();
-        }
-        else if(armState == 1) {
-            instant(() -> arm.raiseArm()).schedule();
+        if (gamepad1.cross) {
+            arm.lowerArm().schedule();
         }
 
         if (gamepad2.right_trigger > 0.1){
@@ -182,7 +178,7 @@ public class LM1_BLUE extends OpMode {
         }
 
         if (gamepad2.left_trigger > 0.1){
-            newShooter.transfer(0.5).schedule();
+            newShooter.transfer(0.6).schedule();
             telemetry.addLine("Transfer Active");
         }
         else {
@@ -190,16 +186,8 @@ public class LM1_BLUE extends OpMode {
             telemetry.addLine("Transfer Inactive");
         }
 
-//        if (gamepad2.a){
-//            newShooter.fire(500).schedule();
-//            telemetry.addLine("Firing All");
-//        }
-//        else {
-//            telemetry.addLine("Not Firing All");
-//        }
-
-        if (gamepad2.b){
-            newShooter.fire(100).schedule();
+        if (gamepad2.cross){
+            //newShooter.fire(100).schedule();
             telemetry.addLine("Firing One");
         }
         else {
@@ -216,20 +204,6 @@ public class LM1_BLUE extends OpMode {
 
 
         telemetry.addData("Servo Position", newShooter.getServoPose());
-
-        //if (shooterSpeed == 0) {
-        //    telemetry.addLine("Shooter Speed = 0%");
-        //} else if (shooterSpeed == 1) {
-        //    telemetry.addLine("Shooter Speed = 55%");
-        //} else if (shooterSpeed == 2) {
-        //    telemetry.addLine("Shooter Speed = 60%");
-        //} else if (shooterSpeed == 3) {
-        //    telemetry.addLine("Shooter Speed = 65%");
-        //} else if (shooterSpeed == 4) {
-        //    telemetry.addLine("Shooter Speed = 70%");
-        //} else if (shooterSpeed == 5) {
-        //    telemetry.addLine("Shooter Speed = 75%");
-        //}
         telemetry.addData("Shooter1 Speed", newShooter.getShooterVelocity());
         telemetry.addData("Shooter2 Speed", newShooter.getShooter2Velocity());
 
