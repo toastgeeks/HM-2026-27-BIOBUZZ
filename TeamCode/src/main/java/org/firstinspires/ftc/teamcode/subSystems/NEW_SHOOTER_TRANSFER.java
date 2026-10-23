@@ -18,7 +18,6 @@ public class NEW_SHOOTER_TRANSFER {
     private DcMotorEx shooter2;
     private DcMotorEx transfer;
     private Servo gate;
-    public double shooterSpeed = 0.65;
     private double servoPose = 0.5;
 
     public static final double SHOOTER_P = 266.8137;
@@ -28,8 +27,13 @@ public class NEW_SHOOTER_TRANSFER {
     public static final double VELOCITY_STEP = 10;
 
     // Target flywheel velocity in ticks per second
-    public double targetVelocity = 1650;
+    public double targetVelocity = 1620;
     private boolean shooterOn = false;
+    private boolean firing = false;
+
+    public boolean isFiring() {
+        return firing;
+    }
 
     public NEW_SHOOTER_TRANSFER(HardwareMap hw) {
         shooter1 = hw.get(DcMotorEx.class, "shooter1");
@@ -106,10 +110,6 @@ public class NEW_SHOOTER_TRANSFER {
         setShooterVelocity(0);
     }
 
-    public void newShooterSpeed(double newShooterSpeed) {
-        this.shooterSpeed += newShooterSpeed;
-    }
-
     public Command rev() {
         return instant(() -> spinUp()).requiring(this);
     }
@@ -122,20 +122,19 @@ public class NEW_SHOOTER_TRANSFER {
         return instant(() -> spinDown()).requiring(this);
     }
 
-    //public Command fire(double transferTime) {
-    //    return sequential(
-    //            instant(() -> {
-    //                if (!shooterOn) {
-    //                    spinUp();
-    //                }
-    //            }),
-    //            openGate(),
-    //            instant(() -> transfer.setPower(1.0)),
-    //            waitMs(transferTime),
-    //            instant(() -> transfer.setPower(0.0)),
-    //            closeGate()
-    //    ).requiring(this);
-    //}
+    public Command fire(double transferTime) {
+        return sequential(
+                instant(() -> firing = true),
+                openGate(),
+                waitMs(500),
+                instant(() -> transfer.setPower(1.0)),
+                waitMs(transferTime),
+                instant(() -> transfer.setPower(0.0)),
+                closeGate(),
+                instant(() -> firing = false),
+                stopRev()
+        ).requiring(this);
+    }
 
     public Command transfer(double transferSpeed) {
         return instant(() -> transfer.setPower(transferSpeed)).requiring(this);
@@ -166,7 +165,7 @@ public class NEW_SHOOTER_TRANSFER {
 
     public Command closeGate() {
         return instant(() -> {
-            gate.setPosition(0.6);
+            gate.setPosition(0.5);
         }).requiring(this);
     }
 

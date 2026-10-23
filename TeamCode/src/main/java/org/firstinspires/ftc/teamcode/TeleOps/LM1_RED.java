@@ -30,9 +30,7 @@ public class LM1_RED extends OpMode {
 
     private NEW_SHOOTER_TRANSFER newShooter;
 
-    private NEW_SHOOTER_TRANSFER servo;
-
-    int armState = 2;
+    private boolean wasRevving = false;
 
     private static final double AIM_KP = 1.5;
     private static final double MAX_TURN_POWER = 0.7;
@@ -56,7 +54,7 @@ public class LM1_RED extends OpMode {
 
         newShooter.newServoPose(0.5);
 
-        arm.lowerArm().schedule();
+        arm.raiseArm().schedule();
 
         Scheduler.execute();
     }
@@ -142,14 +140,13 @@ public class LM1_RED extends OpMode {
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
 
         intake.run(gamepad1.right_trigger - gamepad1.left_trigger).schedule();
-//        newShooter.transfer(gamepad1.right_trigger - gamepad1.left_trigger).schedule();
-        newShooter.transfer(gamepad2.left_trigger).schedule();
 
-        if (gamepad2.square){
-            newShooter.openGate().schedule();
-        }
-        else {
-            newShooter.closeGate().schedule();
+        if (!newShooter.isFiring()) {
+            if (gamepad2.square) {
+                newShooter.openGate().schedule();
+            } else {
+                newShooter.closeGate().schedule();
+            }
         }
 
         if (gamepad1.right_trigger - gamepad1.left_trigger > 0) {
@@ -164,44 +161,44 @@ public class LM1_RED extends OpMode {
             telemetry.addLine("Raising Arm");
         }
 
-        if (gamepad1.cross) {
+        if (gamepad1.crossWasPressed()) {
             arm.lowerArm().schedule();
             telemetry.addLine("Lowering Arm");
         }
 
-        if (gamepad2.right_trigger > 0.1){
-            newShooter.rev().schedule();
-            telemetry.addLine("Flywheel Active");
+        boolean revving = gamepad2.right_trigger > 0.1;
+
+        if (!newShooter.isFiring()) {
+            if (revving && !wasRevving) {
+                newShooter.rev().schedule();
+            }
+
+            if (!revving && wasRevving) {
+                newShooter.stop().schedule();
+            }
         }
-        else {
-            newShooter.stop().schedule();
+
+        wasRevving = revving;
+
+        if (revving) {
+            telemetry.addLine("Flywheel Active");
+        } else {
             telemetry.addLine("Flywheel Inactive");
         }
+        if (!newShooter.isFiring()) {
+            if (gamepad2.left_trigger > 0.1) {
+                newShooter.transfer(0.5).schedule();
+                telemetry.addLine("Transfer Active");
+            } else {
+                newShooter.transferStop().schedule();
+                telemetry.addLine("Transfer Inactive");
+            }
+        }
 
-        if (gamepad2.left_trigger > 0.1){
-            newShooter.transfer(0.5).schedule();
-            telemetry.addLine("Transfer Active");
-        }
-        else {
-            newShooter.transferStop().schedule();
-            telemetry.addLine("Transfer Inactive");
+        if (gamepad2.crossWasPressed() && !newShooter.isFiring()) {
+            newShooter.fire(3000).schedule();
         }
 
-//        if (gamepad2.a){
-//            newShooter.fire(500).schedule();
-//            telemetry.addLine("Firing All");
-//        }
-//        else {
-//            telemetry.addLine("Not Firing All");
-//        }
-
-        if (gamepad2.cross){
-            //newShooter.fire(100).schedule();
-            telemetry.addLine("Firing One");
-        }
-        else {
-            telemetry.addLine("Not Firing One");
-        }
 
 
         if(gamepad2.dpadUpWasPressed()) {
@@ -237,8 +234,6 @@ public class LM1_RED extends OpMode {
     private double clip(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
-
-
 
 
 }
