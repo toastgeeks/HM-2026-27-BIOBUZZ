@@ -6,6 +6,7 @@ import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -19,7 +20,7 @@ import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 
-@TeleOp(name = "Blue Teleop")
+@Disabled//(name = "Blue Teleop")
 public class LM1_BLUE extends OpMode {
 
     private Follower follower;

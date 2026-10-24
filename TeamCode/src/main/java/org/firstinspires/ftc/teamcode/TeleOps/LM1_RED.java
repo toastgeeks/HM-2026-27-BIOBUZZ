@@ -19,7 +19,7 @@ import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 
-@TeleOp(name = "Red Teleop")
+@TeleOp(name = "LM1 TeleOp")
 public class LM1_RED extends OpMode {
 
     private Follower follower;
@@ -52,10 +52,6 @@ public class LM1_RED extends OpMode {
 
         newShooter.stop().schedule();
 
-        newShooter.newServoPose(0.5);
-
-        arm.raiseArm().schedule();
-
         Scheduler.execute();
     }
 
@@ -64,6 +60,9 @@ public class LM1_RED extends OpMode {
     public void start(){
         follower.setPose(OpModeStorage.autonomousEndPose);
         follower.update();
+        arm.raiseArm().schedule();
+        newShooter.newServoPose(0.5);
+        Scheduler.execute();
     }
 
     @Override
