@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.TeleOps;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
-import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -11,16 +10,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subSystems.FlowerIntake;
 import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
-import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
-import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
 import org.firstinspires.ftc.teamcode.subSystems.NEW_SHOOTER_TRANSFER;
-
-import static com.pedropathing.ivy.commands.Commands.*;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.groups.Groups.sequential;
+import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
 
 @TeleOp(name = "LM1 TeleOp")
-public class LM1_RED extends OpMode {
+public class LM2_Main extends OpMode {
 
     private Follower follower;
 
@@ -38,6 +32,12 @@ public class LM1_RED extends OpMode {
     private static final double HIVE_X = 58.0;
     private static final double LOWER_HIVE_Y = 55.0;
     private static final double UPPER_HIVE_Y = 84.0;
+
+    // Estimated time from leaving the shooter to reaching the target.
+    // This MUST be calibrated on your actual robot.
+    private static final double SHOT_FLIGHT_TIME = 0.7;
+
+    private boolean wasShooterReady = false;
 
 
     @Override
@@ -92,10 +92,23 @@ public class LM1_RED extends OpMode {
                 targetY = UPPER_HIVE_Y;
             }
 
-            // Calculate the heading toward the red hive
+            // Calculate the heading toward the hive
+            // Get field-relative robot velocity
+            double vx = follower.velocity().vx;
+            double vy = follower.velocity().vy;
+
+            // Calculate where the target needs to appear
+            // relative to the robot's movement
+            double leadX = HIVE_X - robotPose.x()
+                    - vx * SHOT_FLIGHT_TIME;
+
+            double leadY = targetY - robotPose.y()
+                    - vy * SHOT_FLIGHT_TIME;
+
+            // Calculate compensated shooting heading
             double targetHeading = Math.atan2(
-                    targetY - robotPose.y(),
-                    HIVE_X - robotPose.x()
+                    leadY,
+                    leadX
             );
 
             // Find the shortest rotation to the target
@@ -206,6 +219,19 @@ public class LM1_RED extends OpMode {
         if (gamepad2.dpadDownWasPressed()) {
             newShooter.decreaseTargetVelocity();
         }
+
+        boolean shooterReady = newShooter.isShooterReady();
+
+        if (shooterReady) {
+            gamepad2.rumble(1.0, 1.0, 100);
+        } else {
+            gamepad2.stopRumble();
+        }
+
+        telemetry.addData("Shooter Ready",
+                shooterReady ? "READY!" : "SPINNING UP");
+
+        wasShooterReady = shooterReady;
 
 
         telemetry.addData("Servo Position", newShooter.getServoPose());

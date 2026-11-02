@@ -3,25 +3,18 @@ package org.firstinspires.ftc.teamcode.TeleOps;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
-import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subSystems.FlowerIntake;
 import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
-import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
 import org.firstinspires.ftc.teamcode.subSystems.NEW_SHOOTER_TRANSFER;
 
-import static com.pedropathing.ivy.commands.Commands.*;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-
-@Disabled//(name = "Blue Teleop")
-public class LM1_BLUE extends OpMode {
+@TeleOp(name = "LM1 TeleOp")
+public class LM1_Main extends OpMode {
 
     private Follower follower;
 
@@ -36,7 +29,7 @@ public class LM1_BLUE extends OpMode {
     private static final double AIM_KP = 1.5;
     private static final double MAX_TURN_POWER = 0.7;
 
-    private static final double HIVE_X = 83.0;
+    private static final double HIVE_X = 58.0;
     private static final double LOWER_HIVE_Y = 55.0;
     private static final double UPPER_HIVE_Y = 84.0;
 
@@ -53,10 +46,6 @@ public class LM1_BLUE extends OpMode {
 
         newShooter.stop().schedule();
 
-        newShooter.newServoPose(0.5);
-
-        arm.raiseArm().schedule();
-
         Scheduler.execute();
     }
 
@@ -65,6 +54,9 @@ public class LM1_BLUE extends OpMode {
     public void start(){
         follower.setPose(OpModeStorage.autonomousEndPose);
         follower.update();
+        arm.raiseArm().schedule();
+        newShooter.newServoPose(0.5);
+        Scheduler.execute();
     }
 
     @Override

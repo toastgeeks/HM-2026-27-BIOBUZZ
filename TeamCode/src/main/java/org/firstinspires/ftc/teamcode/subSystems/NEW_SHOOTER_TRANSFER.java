@@ -9,8 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 
 public class NEW_SHOOTER_TRANSFER {
@@ -30,6 +29,15 @@ public class NEW_SHOOTER_TRANSFER {
     public double targetVelocity = 1620;
     private boolean shooterOn = false;
     private boolean firing = false;
+
+    // Maximum acceptable difference from target velocity
+    private static final double READY_TOLERANCE = 50;
+
+    // How long the shooter must stay within tolerance
+    private static final long READY_STABLE_TIME = 150;
+
+    // Tracks how long both flywheels have been ready
+    private long readySince = -1;
 
     public boolean isFiring() {
         return firing;
@@ -122,17 +130,74 @@ public class NEW_SHOOTER_TRANSFER {
         return instant(() -> spinDown()).requiring(this);
     }
 
+    public boolean isShooterReady() {
+
+        if (!shooterOn || targetVelocity <= 0) {
+            readySince = -1;
+            return false;
+        }
+
+        double velocity1 = getShooterVelocity();
+        double velocity2 = getShooter2Velocity();
+
+        boolean shooter1Ready =
+                Math.abs(targetVelocity - velocity1) <= READY_TOLERANCE;
+
+        boolean shooter2Ready =
+                Math.abs(targetVelocity - velocity2) <= READY_TOLERANCE;
+
+        if (shooter1Ready && shooter2Ready) {
+
+            if (readySince == -1) {
+                readySince = System.currentTimeMillis();
+            }
+
+            return System.currentTimeMillis() - readySince
+                    >= READY_STABLE_TIME;
+
+        } else {
+            readySince = -1;
+            return false;
+        }
+    }
+
     public Command fire(double transferTime) {
+
+        if (!shooterOn) {
+            return instant(() -> firing = false).requiring(this);
+        }
+
         return sequential(
-                instant(() -> firing = true),
+
+                instant(() -> {
+                    firing = true;
+                    transfer.setPower(0);
+                }),
+
+                // Wait for both flywheels to stabilize
+                waitUntil(() -> isShooterReady()),
+
+                // Open gate
                 openGate(),
+
                 waitMs(500),
+
+                // Feed all four pollen
                 instant(() -> transfer.setPower(1.0)),
+
                 waitMs(transferTime),
-                instant(() -> transfer.setPower(0.0)),
+
+                // Stop feeding
+                instant(() -> transfer.setPower(0)),
+
+                // Close gate
                 closeGate(),
-                instant(() -> firing = false),
-                stopRev()
+
+                stopRev(),
+
+                // Finish
+                instant(() -> firing = false)
+
         ).requiring(this);
     }
 
