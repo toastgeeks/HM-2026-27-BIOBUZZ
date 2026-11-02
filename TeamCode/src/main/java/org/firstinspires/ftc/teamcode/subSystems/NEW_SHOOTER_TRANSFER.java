@@ -43,6 +43,10 @@ public class NEW_SHOOTER_TRANSFER {
         return firing;
     }
 
+    public boolean isShooterOn() {
+        return shooterOn;
+    }
+
     public NEW_SHOOTER_TRANSFER(HardwareMap hw) {
         shooter1 = hw.get(DcMotorEx.class, "shooter1");
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);

@@ -24,7 +24,6 @@ public class LM2_Main extends OpMode {
 
     private NEW_SHOOTER_TRANSFER newShooter;
 
-    private boolean wasRevving = false;
     private boolean armRaised = true;
 
     private static final double AIM_KP = 1.5;
@@ -196,16 +195,14 @@ public class LM2_Main extends OpMode {
         boolean revving = gamepad2.right_trigger > 0.1;
 
         if (!newShooter.isFiring()) {
-            if (revving && !wasRevving) {
+            if (revving && !newShooter.isShooterOn()) {
                 newShooter.rev().schedule();
             }
 
-            if (!revving && wasRevving) {
+            if (!revving && newShooter.isShooterOn()) {
                 newShooter.stop().schedule();
             }
         }
-
-        wasRevving = revving;
 
         if (revving) {
             telemetry.addLine("Flywheel Active");
