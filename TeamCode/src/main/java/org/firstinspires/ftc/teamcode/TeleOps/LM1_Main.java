@@ -25,6 +25,7 @@ public class LM1_Main extends OpMode {
     private NEW_SHOOTER_TRANSFER newShooter;
 
     private boolean wasRevving = false;
+    private boolean armRaised = true;
 
     private static final double AIM_KP = 1.5;
     private static final double MAX_TURN_POWER = 0.7;
@@ -151,12 +152,26 @@ public class LM1_Main extends OpMode {
 
         if (gamepad1.triangle) {
             arm.raiseArm().schedule();
+            armRaised = true;
             telemetry.addLine("Raising Arm");
         }
 
         if (gamepad1.crossWasPressed()) {
             arm.lowerArm().schedule();
+            armRaised = false;
             telemetry.addLine("Lowering Arm");
+        }
+
+        // Left bumper toggles the arm up/down
+        if (gamepad1.leftBumperWasPressed()) {
+            armRaised = !armRaised;
+            if (armRaised) {
+                arm.raiseArm().schedule();
+                telemetry.addLine("Raising Arm (toggle)");
+            } else {
+                arm.lowerArm().schedule();
+                telemetry.addLine("Lowering Arm (toggle)");
+            }
         }
 
         boolean revving = gamepad2.right_trigger > 0.1;
