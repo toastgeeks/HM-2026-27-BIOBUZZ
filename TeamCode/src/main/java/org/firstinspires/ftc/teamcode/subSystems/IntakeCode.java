@@ -4,9 +4,6 @@ import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import java.util.function.DoubleSupplier;
-
-import static com.pedropathing.ivy.commands.Commands.infinite;
 import static com.pedropathing.ivy.commands.Commands.instant;
 
 public class IntakeCode {
@@ -23,9 +20,5 @@ public class IntakeCode {
 
     public Command stop() {
         return run(0);
-    }
-
-    public Command manual(DoubleSupplier power) {
-        return infinite(() -> intake.setPower(power.getAsDouble())).requiring(this);
     }
 }

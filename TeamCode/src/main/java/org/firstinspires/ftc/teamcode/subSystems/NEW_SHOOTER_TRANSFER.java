@@ -13,11 +13,14 @@ import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 
 public class NEW_SHOOTER_TRANSFER {
-    private DcMotorEx shooter1;
-    private DcMotorEx shooter2;
-    private DcMotorEx transfer;
-    private Servo gate;
-    private double servoPose = 0.5;
+    public static final double GATE_OPEN_POSITION = 0.3;
+    public static final double GATE_CLOSED_POSITION = 0.5;
+
+    private final DcMotorEx shooter1;
+    private final DcMotorEx shooter2;
+    private final DcMotorEx transfer;
+    private final Servo gate;
+    private double gatePosition = GATE_CLOSED_POSITION;
 
     public static final double SHOOTER_P = 266.8137;
     public static final double SHOOTER_I = 0;
@@ -26,7 +29,7 @@ public class NEW_SHOOTER_TRANSFER {
     public static final double VELOCITY_STEP = 10;
 
     // Target flywheel velocity in ticks per second
-    public double targetVelocity = 1620;
+    private double targetVelocity = 1620;
     private boolean shooterOn = false;
     private boolean firing = false;
 
@@ -36,8 +39,11 @@ public class NEW_SHOOTER_TRANSFER {
     // How long the shooter must stay within tolerance
     private static final long READY_STABLE_TIME = 150;
 
+    // Abort a shot if the flywheels cannot reach their target in time.
+    private static final long READY_TIMEOUT_MS = 3000;
+
     // Tracks how long both flywheels have been ready
-    private long readySince = -1;
+    private long readySinceNanos = -1;
 
     public boolean isFiring() {
         return firing;
@@ -55,6 +61,8 @@ public class NEW_SHOOTER_TRANSFER {
         transfer = hw.get(DcMotorEx.class, "transfer");
         transfer.setDirection(DcMotorSimple.Direction.REVERSE);
         gate = hw.get(Servo.class, "gate");
+        transfer.setPower(0);
+        setGatePosition(GATE_CLOSED_POSITION);
         setShooterPIDF(SHOOTER_P, SHOOTER_I, SHOOTER_D, SHOOTER_F);
     }
 
@@ -137,7 +145,7 @@ public class NEW_SHOOTER_TRANSFER {
     public boolean isShooterReady() {
 
         if (!shooterOn || targetVelocity <= 0) {
-            readySince = -1;
+            readySinceNanos = -1;
             return false;
         }
 
@@ -152,15 +160,15 @@ public class NEW_SHOOTER_TRANSFER {
 
         if (shooter1Ready && shooter2Ready) {
 
-            if (readySince == -1) {
-                readySince = System.currentTimeMillis();
+            if (readySinceNanos == -1) {
+                readySinceNanos = System.nanoTime();
             }
 
-            return System.currentTimeMillis() - readySince
-                    >= READY_STABLE_TIME;
+            return System.nanoTime() - readySinceNanos
+                    >= READY_STABLE_TIME * 1_000_000;
 
         } else {
-            readySince = -1;
+            readySinceNanos = -1;
             return false;
         }
     }
@@ -171,36 +179,44 @@ public class NEW_SHOOTER_TRANSFER {
             return instant(() -> firing = false).requiring(this);
         }
 
+        final long[] readyWaitStartedNanos = {0};
+
         return sequential(
 
                 instant(() -> {
                     firing = true;
                     transfer.setPower(0);
+                    readyWaitStartedNanos[0] = System.nanoTime();
                 }),
 
-                // Wait for both flywheels to stabilize
-                waitUntil(() -> isShooterReady()),
+                // Wait for readiness, but do not let a failed flywheel stall the command forever.
+                waitUntil(() -> isShooterReady()
+                        || (System.nanoTime() - readyWaitStartedNanos[0]) / 1_000_000
+                        >= READY_TIMEOUT_MS),
 
-                // Open gate
-                openGate(),
-
-                waitMs(500),
-
-                // Feed all four pollen
-                instant(() -> transfer.setPower(1.0)),
-
-                waitMs(transferTime),
-
-                // Stop feeding
-                instant(() -> transfer.setPower(0)),
-
-                // Close gate
-                closeGate(),
-
-                stopRev(),
-
-                // Finish
-                instant(() -> firing = false)
+                conditional(
+                        () -> isShooterReady(),
+                        sequential(
+                                // Open gate and feed only after both flywheels are stable.
+                                openGate(),
+                                waitMs(500),
+                                instant(() -> transfer.setPower(1.0)),
+                                waitMs(transferTime),
+                                instant(() -> transfer.setPower(0)),
+                                closeGate(),
+                                stopRev(),
+                                instant(() -> firing = false)
+                        ),
+                        sequential(
+                                // Timed out: leave the shooter available for recovery, but make
+                                // sure the transfer and gate are in their safe positions.
+                                instant(() -> {
+                                    transfer.setPower(0);
+                                    setGatePosition(GATE_CLOSED_POSITION);
+                                    firing = false;
+                                })
+                        )
+                )
 
         ).requiring(this);
     }
@@ -216,26 +232,28 @@ public class NEW_SHOOTER_TRANSFER {
     }
 
     public void newServoPose(double newServoPose) {
-        this.servoPose = newServoPose;
-        this.gate.setPosition(this.servoPose);
+        setGatePosition(newServoPose);
     }
-    public double getServoPose() { return this.servoPose; }
+
+    public double getServoPose() {
+        return gatePosition;
+    }
+
+    private void setGatePosition(double position) {
+        gatePosition = position;
+        gate.setPosition(position);
+    }
+
     public Command servoTuning() {
-        return instant(() -> {
-            gate.setPosition(servoPose);
-        }).requiring(this);
+        return instant(() -> setGatePosition(gatePosition)).requiring(this);
     }
 
     public Command openGate() {
-        return instant(() -> {
-            gate.setPosition(0.3);
-        }).requiring(this);
+        return instant(() -> setGatePosition(GATE_OPEN_POSITION)).requiring(this);
     }
 
     public Command closeGate() {
-        return instant(() -> {
-            gate.setPosition(0.5);
-        }).requiring(this);
+        return instant(() -> setGatePosition(GATE_CLOSED_POSITION)).requiring(this);
     }
 
 }
