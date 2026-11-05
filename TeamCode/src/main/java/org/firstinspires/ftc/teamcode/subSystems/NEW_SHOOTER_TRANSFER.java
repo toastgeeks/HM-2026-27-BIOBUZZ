@@ -31,7 +31,6 @@ public class NEW_SHOOTER_TRANSFER {
     // Target flywheel velocity in ticks per second
     private double targetVelocity = 1620;
     private boolean shooterOn = false;
-    private boolean firing = false;
 
     // Maximum acceptable difference from target velocity
     private static final double READY_TOLERANCE = 50;
@@ -39,15 +38,14 @@ public class NEW_SHOOTER_TRANSFER {
     // How long the shooter must stay within tolerance
     private static final long READY_STABLE_TIME = 150;
 
-    // Abort a shot if the flywheels cannot reach their target in time.
-    private static final long READY_TIMEOUT_MS = 3000;
-
     // Tracks how long both flywheels have been ready
     private long readySinceNanos = -1;
+    private boolean firing = false;
 
     public boolean isFiring() {
         return firing;
     }
+
 
     public boolean isShooterOn() {
         return shooterOn;
@@ -106,6 +104,21 @@ public class NEW_SHOOTER_TRANSFER {
     // Speeds are read as absolute values, because the encoder reads negative for positive power on this robot
     public double getShooterVelocity() {
         return Math.abs(shooter1.getVelocity());
+    }
+
+    public void setTargetVelocity(double velocity) {
+
+        if (Math.abs(targetVelocity - velocity) > 0.5) {
+
+            targetVelocity = velocity;
+
+            // Reset readiness because the target changed
+            readySinceNanos = -1;
+
+            if (shooterOn) {
+                setShooterVelocity(targetVelocity);
+            }
+        }
     }
 
     public double getShooter2Velocity() {
@@ -174,50 +187,16 @@ public class NEW_SHOOTER_TRANSFER {
     }
 
     public Command fire(double transferTime) {
-
-        if (!shooterOn) {
-            return instant(() -> firing = false).requiring(this);
-        }
-
-        final long[] readyWaitStartedNanos = {0};
-
         return sequential(
-
-                instant(() -> {
-                    firing = true;
-                    transfer.setPower(0);
-                    readyWaitStartedNanos[0] = System.nanoTime();
-                }),
-
-                // Wait for readiness, but do not let a failed flywheel stall the command forever.
-                waitUntil(() -> isShooterReady()
-                        || (System.nanoTime() - readyWaitStartedNanos[0]) / 1_000_000
-                        >= READY_TIMEOUT_MS),
-
-                conditional(
-                        () -> isShooterReady(),
-                        sequential(
-                                // Open gate and feed only after both flywheels are stable.
-                                openGate(),
-                                waitMs(500),
-                                instant(() -> transfer.setPower(1.0)),
-                                waitMs(transferTime),
-                                instant(() -> transfer.setPower(0)),
-                                closeGate(),
-                                stopRev(),
-                                instant(() -> firing = false)
-                        ),
-                        sequential(
-                                // Timed out: leave the shooter available for recovery, but make
-                                // sure the transfer and gate are in their safe positions.
-                                instant(() -> {
-                                    transfer.setPower(0);
-                                    setGatePosition(GATE_CLOSED_POSITION);
-                                    firing = false;
-                                })
-                        )
-                )
-
+                instant(() -> firing = true),
+                openGate(),
+                waitMs(500),
+                instant(() -> transfer.setPower(1.0)),
+                waitMs(transferTime),
+                instant(() -> transfer.setPower(0.0)),
+                closeGate(),
+                instant(() -> firing = false),
+                stopRev()
         ).requiring(this);
     }
 

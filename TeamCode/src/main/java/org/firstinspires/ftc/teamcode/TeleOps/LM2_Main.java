@@ -13,6 +13,8 @@ import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
 import org.firstinspires.ftc.teamcode.subSystems.NEW_SHOOTER_TRANSFER;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
 
+import static org.firstinspires.ftc.teamcode.subSystems.NEW_SHOOTER_TRANSFER.VELOCITY_STEP;
+
 @TeleOp(name = "LM2 TeleOp")
 public class LM2_Main extends OpMode {
 
@@ -26,14 +28,73 @@ public class LM2_Main extends OpMode {
     private static final double SHOOTER_TRIGGER_DEADBAND = 0.1;
     private static final double MANUAL_TRANSFER_POWER = 0.5;
     private static final double FIRE_TRANSFER_TIME_MS = 3000;
+    private static final double VELOCITY_STEP = 10;
     private static final Pose LOCALIZATION_RESET_POSE =
             new Pose(10.5, 10.5, Math.toRadians(90));
+
+    // Distance from shooter exit to hive cell (inches)
+    private static final double[] SHOT_DISTANCES = {
+            28.0
+    };
+
+    // Corresponding flywheel velocities (ticks/sec)
+    private static final double[] SHOT_VELOCITIES = {
+            1620
+    };
+
+    // Distance from robot center to shooter exit (inches).
+    // Measure this on your robot.
+    private static final double SHOOTER_FORWARD_OFFSET = 0.0;
+
+    // Manual velocity adjustment
+    private double manualVelocityOffset = 0;
 
     private Follower follower;
     private IntakeCode intake;
     private FlowerIntake arm;
     private NEW_SHOOTER_TRANSFER shooter;
     private boolean armRaised = true;
+
+    private double getVelocityForDistance(double distance) {
+
+        // Handle distances below calibration range
+        if (distance <= SHOT_DISTANCES[0]) {
+            return SHOT_VELOCITIES[0];
+        }
+
+        // Handle distances above calibration range
+        int last = SHOT_DISTANCES.length - 1;
+
+        if (distance >= SHOT_DISTANCES[last]) {
+            return SHOT_VELOCITIES[last];
+        }
+
+        // Find the two calibration points surrounding our distance
+        for (int i = 0; i < last; i++) {
+
+            double d1 = SHOT_DISTANCES[i];
+            double d2 = SHOT_DISTANCES[i + 1];
+
+            if (distance >= d1 && distance <= d2) {
+
+                double v1 = SHOT_VELOCITIES[i];
+                double v2 = SHOT_VELOCITIES[i + 1];
+
+                double t = (distance - d1) / (d2 - d1);
+
+                return v1 + t * (v2 - v1);
+            }
+        }
+
+        return 1620;
+    }
+
+    private double getTargetHiveY(Pose pose) {
+        return Math.abs(pose.y() - LOWER_HIVE_Y)
+                < Math.abs(pose.y() - UPPER_HIVE_Y)
+                ? LOWER_HIVE_Y
+                : UPPER_HIVE_Y;
+    }
 
     @Override
     public void init() {
@@ -95,10 +156,7 @@ public class LM2_Main extends OpMode {
     }
 
     private double calculateAimPower(Pose pose) {
-        double targetY = Math.abs(pose.y() - LOWER_HIVE_Y)
-                < Math.abs(pose.y() - UPPER_HIVE_Y)
-                ? LOWER_HIVE_Y
-                : UPPER_HIVE_Y;
+        double targetY = getTargetHiveY(pose);
 
         double vx = follower.velocity().vx;
         double vy = follower.velocity().vy;
@@ -113,6 +171,24 @@ public class LM2_Main extends OpMode {
 
         return clip(headingError * AIM_KP, -MAX_TURN_POWER, MAX_TURN_POWER);
     }
+
+    private double getShootingDistance(Pose pose) {
+
+        double shooterX = pose.x()
+                + SHOOTER_FORWARD_OFFSET * Math.cos(pose.heading());
+
+        double shooterY = pose.y()
+                + SHOOTER_FORWARD_OFFSET * Math.sin(pose.heading());
+
+        double targetY = getTargetHiveY(pose);
+
+        return Math.hypot(
+                HIVE_X - shooterX,
+                targetY - shooterY
+        );
+    }
+
+
 
     private void updateIntake() {
         double intakePower = gamepad1.right_trigger - gamepad1.left_trigger;
@@ -150,6 +226,20 @@ public class LM2_Main extends OpMode {
         boolean firing = shooter.isFiring();
         boolean revving = gamepad2.right_trigger > SHOOTER_TRIGGER_DEADBAND;
 
+        Pose pose = follower.pose();
+
+        double distance = getShootingDistance(pose);
+
+        double automaticVelocity = getVelocityForDistance(distance);
+
+        double finalVelocity = automaticVelocity + manualVelocityOffset;
+
+        shooter.setTargetVelocity(finalVelocity);
+
+        telemetry.addData("Shooting Distance", "%.1f inches", distance);
+        telemetry.addData("Automatic Velocity", "%.0f", automaticVelocity);
+        telemetry.addData("Manual Offset", "%.0f", manualVelocityOffset);
+
         if (!firing) {
             (gamepad2.square ? shooter.openGate() : shooter.closeGate()).schedule();
 
@@ -171,10 +261,11 @@ public class LM2_Main extends OpMode {
         }
 
         if (gamepad2.dpadUpWasPressed()) {
-            shooter.increaseTargetVelocity();
+            manualVelocityOffset += VELOCITY_STEP;
         }
+
         if (gamepad2.dpadDownWasPressed()) {
-            shooter.decreaseTargetVelocity();
+            manualVelocityOffset -= VELOCITY_STEP;
         }
 
         boolean ready = shooter.isShooterReady();
