@@ -160,9 +160,9 @@ public class LM2_Main extends OpMode {
 
         double vx = follower.velocity().vx;
         double vy = follower.velocity().vy;
-        double leadX = HIVE_X - pose.x() - vx * SHOT_FLIGHT_TIME;
+        double leadX = HIVE_X - pose.x() - vx * SHOT_FLIGHT_TIME
         double leadY = targetY - pose.y() - vy * SHOT_FLIGHT_TIME;
-        double targetHeading = Math.atan2(leadY, leadX);
+        double targetHeading = Math.atan2(leadY, leadX) + Math.PI;
         double headingError = angleWrap(targetHeading - pose.heading());
 
         telemetry.addLine("AUTO AIM: ON");
