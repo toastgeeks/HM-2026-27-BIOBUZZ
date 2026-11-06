@@ -34,12 +34,12 @@ public class LM2_Main extends OpMode {
 
     // Distance from shooter exit to hive cell (inches)
     private static final double[] SHOT_DISTANCES = {
-            28.0
+            47.0, 58.9, 71.9, 84.8
     };
 
     // Corresponding flywheel velocities (ticks/sec)
     private static final double[] SHOT_VELOCITIES = {
-            1620
+            1620, 1770, 1830, 2070
     };
 
     // Distance from robot center to shooter exit (inches).
@@ -160,7 +160,7 @@ public class LM2_Main extends OpMode {
 
         double vx = follower.velocity().vx;
         double vy = follower.velocity().vy;
-        double leadX = HIVE_X - pose.x() - vx * SHOT_FLIGHT_TIME
+        double leadX = HIVE_X - pose.x() - vx * SHOT_FLIGHT_TIME;
         double leadY = targetY - pose.y() - vy * SHOT_FLIGHT_TIME;
         double targetHeading = Math.atan2(leadY, leadX) + Math.PI;
         double headingError = angleWrap(targetHeading - pose.heading());
