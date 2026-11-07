@@ -89,8 +89,15 @@ public class LM2_RED_AUTO extends OpMode {
         return lazy(() -> {
             long startTime = System.currentTimeMillis();
 
-            return follow(follower, path).until(
-                    () -> System.currentTimeMillis() - startTime >= timeoutMs
+            return sequential(
+                    follow(follower, path).until(
+                            () -> System.currentTimeMillis() - startTime >= timeoutMs
+                    ),
+                    instant(() -> {
+                        if (System.currentTimeMillis() - startTime >= timeoutMs) {
+                            follower.stop();
+                        }
+                    })
             );
         });
     }
