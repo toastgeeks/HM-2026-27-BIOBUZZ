@@ -16,6 +16,7 @@ import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
+import static com.pedropathing.ivy.commands.Commands.waitUntil;
 
 @Autonomous(name = "LM2 Auto")
 public class LM2_RED_AUTO extends OpMode {
@@ -84,6 +85,16 @@ public class LM2_RED_AUTO extends OpMode {
         return Paths.curve(goParkStart, goParkControl1, goPark).linear(goParkStart, goPark);
     }
 
+    private Command followWithTimeout(Path path, long timeoutMs) {
+        return lazy(() -> {
+            long startTime = System.currentTimeMillis();
+
+            return follow(follower, path).until(
+                    () -> System.currentTimeMillis() - startTime >= timeoutMs
+            );
+        });
+    }
+
     private Command autoRoutine() {
         return sequential(
                 newShooter.rev(),
@@ -93,7 +104,7 @@ public class LM2_RED_AUTO extends OpMode {
                 follow(follower, goToIntakeFromFlower1()),
                 arm.lowerArm(),
                 waitMs(500),
-                follow(follower, intakeFromFlower1()),
+                followWithTimeout(intakeFromFlower1(), 3000),
                 waitMs(1500),
                 follow(follower, backUpFromFlower1()),
                 arm.raiseArm(),
@@ -104,7 +115,7 @@ public class LM2_RED_AUTO extends OpMode {
                 follow(follower, goToIntakeFromFlower2()),
                 arm.lowerArm(),
                 waitMs(500),
-                follow(follower, intakeFromFlower2()),
+                followWithTimeout(intakeFromFlower2(), 3000),
                 waitMs(1500),
                 follow(follower, backUpFromFlower2()),
                 arm.raiseArm(),
