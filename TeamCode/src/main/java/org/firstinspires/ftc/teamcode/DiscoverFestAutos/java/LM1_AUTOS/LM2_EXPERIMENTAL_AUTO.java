@@ -26,14 +26,13 @@ import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
-@Autonomous(name = "LM2 Auto")
+@Autonomous(name = "LM2 Experimental Auto")
 public class LM2_EXPERIMENTAL_AUTO extends OpMode {
 
     private IntakeCode intake;
     private NEW_SHOOTER_TRANSFER newShooter;
     private Follower follower;
-    private FlowerIntake arm;
-    private RedHiveTipDetector hiveDetector;
+    private FlowerIntake arm;    private RedHiveTipDetector hiveDetector;
 
     // =========================================================
     // PRE-START OPTIONS

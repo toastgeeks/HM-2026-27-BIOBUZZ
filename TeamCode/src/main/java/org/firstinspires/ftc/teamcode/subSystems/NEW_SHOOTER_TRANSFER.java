@@ -190,7 +190,7 @@ public class NEW_SHOOTER_TRANSFER {
         return sequential(
                 instant(() -> firing = true),
                 openGate(),
-                waitMs(500),
+                waitMs(200),
                 instant(() -> transfer.setPower(1.0)),
                 waitMs(transferTime),
                 instant(() -> transfer.setPower(0.0)),
