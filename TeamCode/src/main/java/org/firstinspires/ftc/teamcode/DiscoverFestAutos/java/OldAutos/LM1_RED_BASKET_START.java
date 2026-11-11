@@ -1,4 +1,11 @@
-package org.firstinspires.ftc.teamcode.DiscoverFestAutos.java.LM1_AUTOS;
+package org.firstinspires.ftc.teamcode.DiscoverFestAutos.java.OldAutos;
+
+import static com.pedropathing.api.Paths.*;
+import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.*;
+import static com.pedropathing.ivy.commands.Commands.instant;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
@@ -6,31 +13,23 @@ import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subSystems.*;
 
-import static com.pedropathing.api.Paths.curve;
-import static com.pedropathing.api.Paths.line;
-import static com.pedropathing.ivy.Scheduler.schedule;
-import static com.pedropathing.ivy.commands.Commands.*;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-import static com.pedropathing.ivy.pedro.PedroCommands.follow;
-
-@Disabled//(name = "Blue Basket Auto")
-public class LM1_BLUE_BASKET_START extends OpMode {
+@Disabled//(name = "Red Basket Auto")
+public class LM1_RED_BASKET_START extends OpMode {
 
     private IntakeCode intake;
     private NEW_SHOOTER_TRANSFER newShooter;
     private Follower follower;
     private FlowerIntake arm;
-    private BlueHiveTipDetector hiveDetector;
+    private RedHiveTipDetector hiveDetector;
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose startPose = poseFactory.of(55.5, 8.4, 90);
+    private final Pose startPose = poseFactory.of(55.5, 8.4, 270);
     private final Pose goToGardenStart = poseFactory.of(55.5, 8.4, 270);
     private final Pose goToGarden = poseFactory.of(22.7872, 8.2104, 180);
     private final Pose goToGardenControl1 = poseFactory.of(48.6087, 26.7305, 0);
@@ -40,8 +39,8 @@ public class LM1_BLUE_BASKET_START extends OpMode {
     private final Pose goShootOtherSide = poseFactory.of(46.9326, 120.409, 105);
     private final Pose goShootOtherSideControl1 = poseFactory.of(35.7518, 57.0248, 0);
     private final Pose goShootOtherSideControl2 = poseFactory.of(21.143, 117.4232, 0);
-    private final Pose intakeFromFlower = poseFactory.of(47.1253, 124.58628841, 90);
-    private final Pose shootAfterFlower = poseFactory.of(46.8333, 120.5615, 105);
+    private final Pose intakeFromFlower = poseFactory.of(47.1253, 125.2553, 90);
+    private final Pose shootAfterFlower = poseFactory.of(46.8333, 124.58628841, 105);
     private final Pose goPark = poseFactory.of(13.2134, 116.0176, 0);
     private final Pose goParkControl1 = poseFactory.of(31.5272, 112.7329, 0);
 
@@ -50,7 +49,9 @@ public class LM1_BLUE_BASKET_START extends OpMode {
     }
 
     public Path intakeFromGarden() {
-        return line(goToGarden, intakeFromGarden).constant(intakeFromGarden);
+        return line(goToGarden, intakeFromGarden)
+                .constant(intakeFromGarden)
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.25));
     }
 
     public Path doubleSureTip() {
@@ -62,7 +63,9 @@ public class LM1_BLUE_BASKET_START extends OpMode {
     }
 
     public Path intakeFromFlower() {
-        return line(goShootOtherSide, intakeFromFlower).linear(goShootOtherSide, intakeFromFlower);
+        return line(goShootOtherSide, intakeFromFlower)
+                .linear(goShootOtherSide, intakeFromFlower)
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.25));
     }
 
     public Path shootAfterFlower() {
@@ -101,11 +104,13 @@ public class LM1_BLUE_BASKET_START extends OpMode {
                 intake.run(0),
                 follow(follower, doubleSureTip()),
                 shootHive(),
+                newShooter.rev(),
                 follow(follower, goShootOtherSide()),
                 newShooter.fire(2500),
                 instant(() -> arm.lowerArm()),
                 intake.run(1.0),
                 follow(follower, intakeFromFlower()),
+                newShooter.rev(),
                 waitMs(1000),
                 intake.run(0.0),
                 follow(follower, shootAfterFlower()),
@@ -128,13 +133,15 @@ public class LM1_BLUE_BASKET_START extends OpMode {
         intake = new IntakeCode(hardwareMap);
 
         newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
+        arm = new FlowerIntake(hardwareMap);
 
-        hiveDetector = new BlueHiveTipDetector();
+        hiveDetector = new RedHiveTipDetector();
         hiveDetector.init(hardwareMap);
 
-        hiveDetector = new BlueHiveTipDetector();
+        hiveDetector = new RedHiveTipDetector();
         hiveDetector.init(hardwareMap);
         newShooter.closeGate().schedule();
+        arm.raiseArm().schedule();
 
         newShooter.stop();
         Scheduler.execute();
