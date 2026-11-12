@@ -225,6 +225,8 @@ public class LM2_Main extends OpMode {
     private void updateShooter() {
         boolean firing = shooter.isFiring();
         boolean revving = gamepad2.right_trigger > SHOOTER_TRIGGER_DEADBAND;
+        // Read every loop so taps made during a shot are consumed and discarded
+        boolean firePressed = gamepad2.crossWasPressed();
 
         Pose pose = follower.pose();
 
@@ -255,7 +257,7 @@ public class LM2_Main extends OpMode {
                 telemetry.addLine("Transfer Inactive");
             }
 
-            if (gamepad2.crossWasPressed()) {
+            if (firePressed) {
                 shooter.fire(FIRE_TRANSFER_TIME_MS).schedule();
             }
         }
