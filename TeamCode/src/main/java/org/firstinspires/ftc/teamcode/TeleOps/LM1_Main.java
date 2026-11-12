@@ -204,7 +204,7 @@ public class LM1_Main extends OpMode {
         }
 
         if (gamepad2.crossWasPressed() && !newShooter.isFiring()) {
-            newShooter.fire(3000).schedule();
+            newShooter.fire(1000).schedule();
         }
 
 

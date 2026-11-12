@@ -27,7 +27,7 @@ public class LM2_Main extends OpMode {
     private static final double INTAKE_DEADBAND = 0.0;
     private static final double SHOOTER_TRIGGER_DEADBAND = 0.1;
     private static final double MANUAL_TRANSFER_POWER = 0.5;
-    private static final double FIRE_TRANSFER_TIME_MS = 3000;
+    private static final double FIRE_TRANSFER_TIME_MS = 1000;
     private static final double VELOCITY_STEP = 10;
     private static final Pose LOCALIZATION_RESET_POSE =
             new Pose(10.5, 10.5, Math.toRadians(90));
