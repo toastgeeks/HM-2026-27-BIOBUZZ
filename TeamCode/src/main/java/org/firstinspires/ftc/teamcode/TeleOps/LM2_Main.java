@@ -46,8 +46,9 @@ public class LM2_Main extends OpMode {
     // Measure this on your robot.
     private static final double SHOOTER_FORWARD_OFFSET = 0.0;
 
-    // Manual velocity adjustment
     private double manualVelocityOffset = 0;
+    private long lastAutoAimTime = 0;
+    private static final long AUTO_AIM_VELOCITY_HOLD_MS = 5000;
 
     private Follower follower;
     private IntakeCode intake;
@@ -134,9 +135,16 @@ public class LM2_Main extends OpMode {
         follower.update();
 
         Pose pose = follower.pose();
+
+        // Check if auto aim is being used
+        if (gamepad1.right_bumper) {
+            lastAutoAimTime = System.currentTimeMillis();
+        }
+
         double turnPower = gamepad1.right_bumper
                 ? calculateAimPower(pose)
                 : -gamepad1.right_stick_x;
+
         if (!gamepad1.right_bumper) {
             telemetry.addLine("AUTO AIM: OFF");
         }
@@ -234,8 +242,25 @@ public class LM2_Main extends OpMode {
 
         double automaticVelocity = getVelocityForDistance(distance);
 
-        double finalVelocity = automaticVelocity + manualVelocityOffset;
+        // Check whether auto aim is currently active or was used within the last 5 seconds
+        long currentTime = System.currentTimeMillis();
 
+        boolean autoAimRecentlyUsed =
+                currentTime - lastAutoAimTime <= AUTO_AIM_VELOCITY_HOLD_MS;
+
+        // Choose the flywheel velocity
+        double baseVelocity;
+
+        if (autoAimRecentlyUsed) {
+            baseVelocity = automaticVelocity;
+        } else {
+            baseVelocity = 1620;
+        }
+
+        // Apply manual velocity adjustment
+        double finalVelocity = baseVelocity + manualVelocityOffset;
+
+        // Set shooter velocity
         shooter.setTargetVelocity(finalVelocity);
 
         telemetry.addData("Shooting Distance", "%.1f inches", distance);
