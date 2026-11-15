@@ -242,7 +242,7 @@ public class LM2_Main extends OpMode {
 
         double automaticVelocity = getVelocityForDistance(distance);
 
-        // Check whether auto aim is currently active or was used within the last 5 seconds
+        // Check whether auto aim is currently active or was active within the last 5 seconds
         long currentTime = System.currentTimeMillis();
 
         boolean autoAimRecentlyUsed =

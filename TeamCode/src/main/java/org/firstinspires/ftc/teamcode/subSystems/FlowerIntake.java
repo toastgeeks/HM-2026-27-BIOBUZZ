@@ -8,7 +8,6 @@ import static com.pedropathing.ivy.commands.Commands.instant;
 
 public class FlowerIntake {
     private final Servo arm;
-
     private static final double LOWER_POSITION = 0.37;
     private static final double RAISE_POSITION = 0.7;
 

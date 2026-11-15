@@ -281,12 +281,13 @@ public class LM2_MAIN_AUTO extends OpMode {
                 arm.lowerArm(),
                 waitMs(500),
 
-                followWithTimeout(intakeFromFlower1(), 3000),
+                followWithTimeout(intakeFromFlower1(), 1500),
 
                 waitMs(1500),
 
                 follow(follower, backUpFromFlower1()),
 
+                arm.raiseArm(),
                 arm.raiseArm(),
                 newShooter.rev(),
 
@@ -300,12 +301,13 @@ public class LM2_MAIN_AUTO extends OpMode {
                 arm.lowerArm(),
                 waitMs(500),
 
-                followWithTimeout(intakeFromFlower2(), 3000),
+                followWithTimeout(intakeFromFlower2(), 1500),
 
                 waitMs(1500),
 
                 follow(follower, backUpFromFlower2()),
 
+                arm.raiseArm(),
                 arm.raiseArm(),
                 newShooter.rev(),
 
