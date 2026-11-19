@@ -21,5 +21,5 @@ public class FlowerIntake {
 
     public Command raiseArm() {
         return instant(() -> arm.setPosition(RAISE_POSITION)).requiring(this);
-    }
+    } //colt45 was here
 }
