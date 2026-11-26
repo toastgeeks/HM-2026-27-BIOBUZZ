@@ -1,25 +1,24 @@
 package org.firstinspires.ftc.teamcode.subSystems;
 
+import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import static com.pedropathing.ivy.commands.Commands.instant;
+
 public class IntakeCode {
+    private final DcMotor intake;
 
-    private DcMotor intake;
-
-    public void init(HardwareMap hwMap) {
-        intake = hwMap.get(DcMotor.class, "intake");
-
-        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+    public IntakeCode(HardwareMap hw) {
+        intake = hw.get(DcMotor.class, "intake");
+        intake.setDirection(DcMotor.Direction.REVERSE);
     }
 
-    public void setIntakeSpeed(double power) {
-        intake.setPower(power);
+    public Command run(double power) {
+        return instant(() -> intake.setPower(power)).requiring(this);
     }
 
-    public void stop() {
-        intake.setPower(0);
+    public Command stop() {
+        return run(0);
     }
 }
