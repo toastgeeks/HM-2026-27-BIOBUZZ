@@ -66,21 +66,20 @@ public class LM3_Main extends OpMode {
 
     // Camera mounting position (inches)
     // Measure relative to the CENTER of the robot.
-    private static final double CAMERA_FORWARD = 0.0;
-    private static final double CAMERA_RIGHT = 0.0;
-    private static final double CAMERA_UP = 0.0;
+    private static final double CAMERA_FORWARD = -2.8;
+    private static final double CAMERA_RIGHT = 0.5;
+    private static final double CAMERA_UP = 10.25;
 
     // Camera mounting angles (degrees).
     // These are measurements to enter in the Limelight's
     // camera mounting configuration.
     private static final double CAMERA_ROLL = 0.0;
-    private static final double CAMERA_PITCH = 0.0;
-    private static final double CAMERA_YAW = 0.0;
+    private static final double CAMERA_PITCH = 45.0;
+    private static final double CAMERA_YAW = 180.0;
 
-    // Do not enable until field localization has been calibrated.
-    private static final boolean ENABLE_VISION_CORRECTION = false;
+    private static final boolean ENABLE_VISION_CORRECTION = true;
 
-    private Limelight3A limelight;
+    private Limelight3A limelight; // I think this is what it is called on the bot but we should double check the config map
 
     private int lastDetectedTag = -1;
     private boolean limelightConnected = false;
@@ -118,7 +117,7 @@ public class LM3_Main extends OpMode {
             }
         }
 
-        return 1620;
+        return 1650;
     }
 
     private double selectedHiveY = LOWER_HIVE_Y;

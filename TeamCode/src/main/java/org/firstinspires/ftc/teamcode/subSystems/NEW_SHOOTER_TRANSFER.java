@@ -223,10 +223,6 @@ public class NEW_SHOOTER_TRANSFER {
         gate.setPosition(position);
     }
 
-    public Command servoTuning() {
-        return instant(() -> setGatePosition(gatePosition)).requiring(this);
-    }
-
     public Command openGate() {
         return instant(() -> setGatePosition(GATE_OPEN_POSITION)).requiring(this);
     }
