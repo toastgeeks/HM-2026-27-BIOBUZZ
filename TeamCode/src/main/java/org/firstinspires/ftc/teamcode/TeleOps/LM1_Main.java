@@ -7,12 +7,11 @@ import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subSystems.FlowerIntake;
 import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
-import org.firstinspires.ftc.teamcode.subSystems.NEW_SHOOTER_TRANSFER;
+import org.firstinspires.ftc.teamcode.subSystems.NewSubSystems.ShooterConstants;
 
 @Disabled//(name = "LM1 TeleOp")
 public class LM1_Main extends OpMode {
@@ -23,7 +22,7 @@ public class LM1_Main extends OpMode {
 
     private FlowerIntake arm;
 
-    private NEW_SHOOTER_TRANSFER newShooter;
+    private ShooterConstants newShooter;
 
     private boolean wasRevving = false;
     private boolean armRaised = true;
@@ -44,7 +43,7 @@ public class LM1_Main extends OpMode {
 
         arm = new FlowerIntake(hardwareMap);
 
-        newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
+        newShooter = new ShooterConstants(hardwareMap);
 
         newShooter.stop().schedule();
 

@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subSystems.*;
+import org.firstinspires.ftc.teamcode.subSystems.NewSubSystems.ShooterConstants;
 
 import static com.pedropathing.api.Paths.curve;
 import static com.pedropathing.api.Paths.line;
@@ -22,7 +23,7 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 public class Dumb_LM1_AUTO extends OpMode {
 
     private IntakeCode intake;
-    private NEW_SHOOTER_TRANSFER newShooter;
+    private ShooterConstants newShooter;
     private Follower follower;
     private FlowerIntake arm;
     private RedHiveTipDetector hiveDetector;
@@ -75,7 +76,7 @@ public class Dumb_LM1_AUTO extends OpMode {
         follower.setPose(startPose);
         intake = new IntakeCode(hardwareMap);
 
-        newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
+        newShooter = new ShooterConstants(hardwareMap);
         arm = new FlowerIntake(hardwareMap);
 
         hiveDetector = new RedHiveTipDetector();

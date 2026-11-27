@@ -1,1 +1,1 @@
-Hey, it's me Nathan the programming team captain of 19668 Hivemind
+Hey, it's me Nathan the programming team captgiain of 19668 Hivemind

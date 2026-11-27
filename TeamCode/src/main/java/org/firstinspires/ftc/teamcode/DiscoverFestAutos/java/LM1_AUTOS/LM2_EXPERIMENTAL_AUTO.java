@@ -17,6 +17,7 @@ import com.skeletonarmy.marrow.zones.PolygonZone;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subSystems.*;
+import org.firstinspires.ftc.teamcode.subSystems.NewSubSystems.ShooterConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 public class LM2_EXPERIMENTAL_AUTO extends OpMode {
 
     private IntakeCode intake;
-    private NEW_SHOOTER_TRANSFER newShooter;
+    private ShooterConstants newShooter;
     private Follower follower;
     private FlowerIntake arm;    private RedHiveTipDetector hiveDetector;
 
@@ -661,7 +662,7 @@ public class LM2_EXPERIMENTAL_AUTO extends OpMode {
         follower.setPose(startPose);
 
         intake = new IntakeCode(hardwareMap);
-        newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
+        newShooter = new ShooterConstants(hardwareMap);
         arm = new FlowerIntake(hardwareMap);
 
         hiveDetector = new RedHiveTipDetector();

@@ -6,7 +6,6 @@ import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -14,7 +13,7 @@ import org.firstinspires.ftc.teamcode.subSystems.BlueHiveTipDetector;
 import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
 import org.firstinspires.ftc.teamcode.subSystems.Shooter_Transfer;
-import org.firstinspires.ftc.teamcode.subSystems.NEW_SHOOTER_TRANSFER;
+import org.firstinspires.ftc.teamcode.subSystems.NewSubSystems.ShooterConstants;
 
 
 import static com.pedropathing.api.Paths.curve;
@@ -28,7 +27,7 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 @Disabled
 public class BLUE_BASKET_START extends OpMode {
     private IntakeCode intake;
-    private NEW_SHOOTER_TRANSFER newShooter;
+    private ShooterConstants newShooter;
     private Follower follower;
     private BlueHiveTipDetector hiveDetector;
     private final PoseFactory p = PoseFactory.degrees();
@@ -157,7 +156,7 @@ public class BLUE_BASKET_START extends OpMode {
         follower.setPose(startPose);
 
         intake = new IntakeCode(hardwareMap);
-        newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
+        newShooter = new ShooterConstants(hardwareMap);
 
         hiveDetector = new BlueHiveTipDetector();
         hiveDetector.init(hardwareMap);

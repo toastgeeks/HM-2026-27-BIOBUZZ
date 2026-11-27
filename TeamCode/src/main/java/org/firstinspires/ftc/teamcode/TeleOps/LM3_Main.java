@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subSystems.FlowerIntake;
 import org.firstinspires.ftc.teamcode.subSystems.IntakeCode;
-import org.firstinspires.ftc.teamcode.subSystems.NEW_SHOOTER_TRANSFER;
+import org.firstinspires.ftc.teamcode.subSystems.NewSubSystems.ShooterConstants;
 import org.firstinspires.ftc.teamcode.subSystems.OpModeStorage;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -56,7 +56,7 @@ public class LM3_Main extends OpMode {
     private Follower follower;
     private IntakeCode intake;
     private FlowerIntake arm;
-    private NEW_SHOOTER_TRANSFER shooter;
+    private ShooterConstants shooter;
     private boolean armRaised = true;
 
     // ================= LIMELIGHT CONFIGURATION =================
@@ -133,7 +133,7 @@ public class LM3_Main extends OpMode {
         follower = Constants.create(hardwareMap);
         intake = new IntakeCode(hardwareMap);
         arm = new FlowerIntake(hardwareMap);
-        shooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
+        shooter = new ShooterConstants(hardwareMap);
         limelight = hardwareMap.get(
                 Limelight3A.class,
                 LIMELIGHT_NAME
@@ -149,7 +149,7 @@ public class LM3_Main extends OpMode {
         follower.setPose(OpModeStorage.autonomousEndPose);
         follower.update();
         arm.raiseArm().schedule();
-        shooter.newServoPose(NEW_SHOOTER_TRANSFER.GATE_CLOSED_POSITION);
+        shooter.newServoPose(ShooterConstants.GATE_CLOSED_POSITION);
         limelight.start();
         Scheduler.execute();
     }

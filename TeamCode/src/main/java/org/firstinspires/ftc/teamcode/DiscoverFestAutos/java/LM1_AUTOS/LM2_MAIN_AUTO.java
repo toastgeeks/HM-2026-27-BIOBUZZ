@@ -16,6 +16,7 @@ import com.skeletonarmy.marrow.prompts.*;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subSystems.*;
+import org.firstinspires.ftc.teamcode.subSystems.NewSubSystems.ShooterConstants;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.*;
@@ -26,7 +27,7 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 public class LM2_MAIN_AUTO extends OpMode {
 
     private IntakeCode intake;
-    private NEW_SHOOTER_TRANSFER newShooter;
+    private ShooterConstants newShooter;
     private Follower follower;
     private FlowerIntake arm;
     private RedHiveTipDetector hiveDetector;
@@ -337,7 +338,7 @@ public class LM2_MAIN_AUTO extends OpMode {
 
         intake = new IntakeCode(hardwareMap);
 
-        newShooter = new NEW_SHOOTER_TRANSFER(hardwareMap);
+        newShooter = new ShooterConstants(hardwareMap);
 
         arm = new FlowerIntake(hardwareMap);
 
