@@ -167,5 +167,4 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
     }}
 
 
-
 // wakeo was here!!
